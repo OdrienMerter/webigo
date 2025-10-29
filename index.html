@@ -48,6 +48,20 @@
         background-position: 0% 50%;
       }
     }
+
+    @keyframes icon-pulse {
+      0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 5px rgba(34, 211, 238, 0.7));
+      }
+      50% {
+        transform: scale(1.15);
+        filter: drop-shadow(0 0 12px rgba(34, 211, 238, 1));
+      }
+    }
+    .animate-icon-pulse {
+        animation: icon-pulse 1.5s ease-in-out;
+    }
   </style>
 <script type="importmap">
 {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import SectionTitle from './SectionTitle';
 
 const Contact: React.FC = () => {
@@ -15,6 +15,23 @@ const Contact: React.FC = () => {
   });
 
   const [status, setStatus] = useState('');
+   const [inView, setInView] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    const currentRef = ref.current;
+    if (currentRef) observer.observe(currentRef);
+    return () => { if (currentRef) observer.unobserve(currentRef); };
+  }, []);
 
   const validateForm = () => {
     const newErrors = { name: '', email: '', message: '' };
@@ -65,12 +82,12 @@ const Contact: React.FC = () => {
 
   return (
     <section id="contact" className="py-20 md:py-28">
-      <div className="container mx-auto px-6">
+      <div ref={ref} className="container mx-auto px-6">
         <SectionTitle>Contactez-Nous</SectionTitle>
-        <p className="text-center text-gray-400 max-w-2xl mx-auto mb-10">
+        <p className={`text-center text-gray-400 max-w-2xl mx-auto mb-10 transition-opacity duration-700 ease-out ${inView ? 'opacity-100' : 'opacity-0'}`}>
           Une idée ? Un projet ? Nous serions ravis d'en discuter avec vous. Remplissez le formulaire ci-dessous pour démarrer la conversation.
         </p>
-        <div className="max-w-xl mx-auto">
+        <div className={`max-w-xl mx-auto transition-all duration-700 ease-out delay-300 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <form onSubmit={handleSubmit} className="space-y-6" noValidate>
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">Nom</label>

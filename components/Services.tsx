@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { CodeIcon, DesignIcon, SeoIcon, MaintenanceIcon } from './ServiceIcons';
 import SectionTitle from './SectionTitle';
 
@@ -26,6 +25,43 @@ const services = [
   },
 ];
 
+const AnimatedServiceCard: React.FC<{ service: typeof services[0], index: number }> = ({ service, index }) => {
+    const [inView, setInView] = useState(false);
+    const ref = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setInView(true);
+                    observer.unobserve(entry.target);
+                }
+            },
+            { threshold: 0.5 }
+        );
+        const currentRef = ref.current;
+        if (currentRef) observer.observe(currentRef);
+        return () => { if (currentRef) observer.unobserve(currentRef); };
+    }, []);
+
+    return (
+        <div
+            ref={ref}
+            className={`flex items-start p-6 bg-gray-800/50 rounded-lg border border-gray-700 hover:border-cyan-500/50 transition-all duration-500 ease-out ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+            style={{ transitionDelay: `${index * 100}ms` }}
+        >
+            <div className={`mr-6 text-cyan-400 ${inView ? 'animate-icon-pulse' : ''}`}>
+                {service.icon}
+            </div>
+            <div>
+                <h3 className="text-xl font-bold text-white mb-2">{service.title}</h3>
+                <p className="text-gray-400">{service.description}</p>
+            </div>
+        </div>
+    );
+};
+
+
 const Services: React.FC = () => {
   return (
     <section id="services" className="py-20 md:py-28">
@@ -33,15 +69,7 @@ const Services: React.FC = () => {
         <SectionTitle>Nos Services</SectionTitle>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {services.map((service, index) => (
-            <div key={index} className="flex items-start p-6 bg-gray-800/50 rounded-lg border border-gray-700 hover:border-cyan-500/50 transition-colors duration-300">
-              <div className="mr-6 text-cyan-400">
-                {service.icon}
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-white mb-2">{service.title}</h3>
-                <p className="text-gray-400">{service.description}</p>
-              </div>
-            </div>
+            <AnimatedServiceCard key={index} service={service} index={index} />
           ))}
         </div>
       </div>
