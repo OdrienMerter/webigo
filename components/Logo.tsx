@@ -22,7 +22,7 @@ export const Logo: React.FC<{ className?: string }> = ({ className }) => (
       strokeWidth="4"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="text-cyan-400"
+      className="text-indigo-400"
       filter="url(#neon-glow)"
     >
       {/* Monitor frame and stand */}

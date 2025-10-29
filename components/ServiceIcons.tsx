@@ -1,7 +1,7 @@
 
 import React from 'react';
 
-const iconClass = "w-10 h-10 drop-shadow-[0_0_5px_rgba(34,211,238,0.7)]";
+const iconClass = "w-10 h-10 drop-shadow-[0_0_5px_rgba(139,92,246,0.6)]";
 
 export const CodeIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className={iconClass} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>

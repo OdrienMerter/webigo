@@ -10,9 +10,10 @@ interface CarouselItem {
 
 interface Carousel3DProps {
   items: CarouselItem[];
+  isMenuOpen: boolean;
 }
 
-const Carousel3D: React.FC<Carousel3DProps> = ({ items }) => {
+const Carousel3D: React.FC<Carousel3DProps> = ({ items, isMenuOpen }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const numItems = items.length;
 
@@ -69,7 +70,7 @@ const Carousel3D: React.FC<Carousel3DProps> = ({ items }) => {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Voir le projet ${item.title}`}
-            className="block absolute w-full h-full left-0 top-0 border-2 border-cyan-500/50 rounded-lg overflow-hidden shadow-[0_0_15px_rgba(34,211,238,0.5)]"
+            className="block absolute w-full h-full left-0 top-0 border-2 border-indigo-500/30 rounded-lg overflow-hidden shadow-[0_0_15px_rgba(99,102,241,0.3)]"
             style={getStyle(index)}
           >
             <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
@@ -78,15 +79,17 @@ const Carousel3D: React.FC<Carousel3DProps> = ({ items }) => {
       </div>
       <button
         onClick={() => handleNav('prev')}
-        className="absolute left-0 md:left-[10%] lg:left-[20%] top-1/2 -translate-y-1/2 text-cyan-400 p-2 rounded-full bg-gray-800/50 hover:bg-gray-700/80 transition-all text-2xl md:text-4xl z-50"
+        className="absolute left-0 md:left-[10%] lg:left-[20%] top-1/2 -translate-y-1/2 text-indigo-400 p-2 rounded-full bg-gray-800/50 hover:bg-gray-700/80 transition-all text-2xl md:text-4xl z-50 disabled:opacity-50 disabled:cursor-not-allowed"
         aria-label="Previous project"
+        disabled={isMenuOpen}
       >
         &#x276E;
       </button>
       <button
         onClick={() => handleNav('next')}
-        className="absolute right-0 md:right-[10%] lg:right-[20%] top-1/2 -translate-y-1/2 text-cyan-400 p-2 rounded-full bg-gray-800/50 hover:bg-gray-700/80 transition-all text-2xl md:text-4xl z-50"
+        className="absolute right-0 md:right-[10%] lg:right-[20%] top-1/2 -translate-y-1/2 text-indigo-400 p-2 rounded-full bg-gray-800/50 hover:bg-gray-700/80 transition-all text-2xl md:text-4xl z-50 disabled:opacity-50 disabled:cursor-not-allowed"
         aria-label="Next project"
+        disabled={isMenuOpen}
       >
         &#x276F;
       </button>

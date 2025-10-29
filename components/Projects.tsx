@@ -66,19 +66,32 @@ const ProjectCard: React.FC<{ project: typeof projects[0], index: number }> = ({
         return () => { if (currentRef) observer.unobserve(currentRef); };
     }, []);
 
+    const getResponsiveClasses = (idx: number) => {
+        // Hide 3 projects on mobile (show first 3)
+        // Hide 2 projects on tablet (show first 4)
+        // Show all 6 on desktop
+        if (idx >= 4) { // Projects 5 and 6
+            return 'hidden lg:block';
+        }
+        if (idx === 3) { // Project 4
+            return 'hidden md:block';
+        }
+        return '';
+    };
+
     return (
         <div
             ref={ref}
-            className={`group relative overflow-hidden rounded-lg bg-gray-800 border border-gray-700 transition-all duration-500 ease-out hover:border-cyan-500 hover:shadow-2xl hover:shadow-cyan-500/20 transform hover:-translate-y-2 hover:scale-105 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+            className={`group relative overflow-hidden rounded-lg bg-gray-800 border border-gray-700 transition-all duration-500 ease-out hover:border-indigo-500/70 hover:shadow-2xl hover:shadow-indigo-500/20 transform hover:-translate-y-2 hover:scale-105 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} ${getResponsiveClasses(index)}`}
             style={{ transitionDelay: `${index * 100}ms` }}
         >
             <img src={project.imageUrl} alt={project.title} className="w-full h-56 object-cover transition-transform duration-300 group-hover:scale-105" />
             <div className="p-6">
-                <h3 className="text-xl font-bold text-cyan-400 mb-2">{project.title}</h3>
+                <h3 className="text-xl font-bold text-indigo-400 mb-2">{project.title}</h3>
                 <p className="text-gray-400 mb-4 text-sm">{project.description}</p>
                 <div className="flex flex-wrap gap-2">
                     {project.tags.map(tag => (
-                        <span key={tag} className="px-2 py-1 bg-gray-700 text-cyan-300 text-xs rounded-full">
+                        <span key={tag} className="px-2 py-1 bg-gray-700 text-indigo-300 text-xs rounded-full">
                             {tag}
                         </span>
                     ))}
@@ -90,7 +103,7 @@ const ProjectCard: React.FC<{ project: typeof projects[0], index: number }> = ({
 
 const Projects: React.FC = () => {
   return (
-    <section id="projets" className="py-20 md:py-28 bg-gray-900/50">
+    <section id="projets" className="py-20 md:py-28 bg-black/20">
       <div className="container mx-auto px-6">
         <SectionTitle>Nos Projets Récents</SectionTitle>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

@@ -84,7 +84,7 @@ const Contact: React.FC = () => {
     <section id="contact" className="py-20 md:py-28">
       <div ref={ref} className="container mx-auto px-6">
         <SectionTitle>Contactez-Nous</SectionTitle>
-        <p className={`text-center text-gray-400 max-w-2xl mx-auto mb-10 transition-opacity duration-700 ease-out ${inView ? 'opacity-100' : 'opacity-0'}`}>
+        <p className={`text-center text-xl md:text-2xl font-semibold text-gray-300 max-w-2xl mx-auto mb-10 transition-opacity duration-700 ease-out ${inView ? 'opacity-100' : 'opacity-0'}`}>
           Une idée ? Un projet ? Nous serions ravis d'en discuter avec vous. Remplissez le formulaire ci-dessous pour démarrer la conversation.
         </p>
         <div className={`max-w-xl mx-auto transition-all duration-700 ease-out delay-300 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
@@ -97,7 +97,7 @@ const Contact: React.FC = () => {
                 id="name"
                 value={formData.name}
                 onChange={handleChange}
-                className={`w-full px-4 py-2 bg-gray-800 border rounded-md text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none transition-all duration-300 ${errors.name ? 'border-red-500' : 'border-gray-700'}`}
+                className={`w-full px-4 py-2 bg-gray-800 border rounded-md text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all duration-300 ${errors.name ? 'border-red-500' : 'border-gray-700'}`}
               />
               {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
             </div>
@@ -109,7 +109,7 @@ const Contact: React.FC = () => {
                 id="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={`w-full px-4 py-2 bg-gray-800 border rounded-md text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none transition-all duration-300 ${errors.email ? 'border-red-500' : 'border-gray-700'}`}
+                className={`w-full px-4 py-2 bg-gray-800 border rounded-md text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all duration-300 ${errors.email ? 'border-red-500' : 'border-gray-700'}`}
               />
               {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
             </div>
@@ -121,12 +121,12 @@ const Contact: React.FC = () => {
                 rows={5}
                 value={formData.message}
                 onChange={handleChange}
-                className={`w-full px-4 py-2 bg-gray-800 border rounded-md text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none transition-all duration-300 ${errors.message ? 'border-red-500' : 'border-gray-700'}`}
+                className={`w-full px-4 py-2 bg-gray-800 border rounded-md text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all duration-300 ${errors.message ? 'border-red-500' : 'border-gray-700'}`}
               ></textarea>
               {errors.message && <p className="text-red-500 text-sm mt-1">{errors.message}</p>}
             </div>
             <div className="text-center">
-              <button type="submit" className="px-8 py-3 bg-cyan-500 text-white font-bold rounded-full transition-all duration-300 hover:bg-cyan-400 hover:shadow-[0_0_20px_rgba(34,211,238,0.8)] transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
+              <button type="submit" className="px-8 py-3 bg-indigo-600 text-white font-bold rounded-full transition-all duration-300 hover:bg-indigo-500 hover:shadow-[0_0_20px_rgba(139,92,246,0.6)] transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
                 Envoyer le Message
               </button>
             </div>
