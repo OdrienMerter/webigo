@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Webigo - Agence Digitale</title>
+  <meta name="description" content="Webigo est une agence digitale spécialisée dans la création de sites web modernes et performants pour les commerces et entreprises. Nous offrons des services de développement sur mesure, design UI/UX, et référencement SEO." />
+  <meta name="keywords" content="agence digitale, création de site web, développement web, site vitrine, portfolio, design UI/UX, SEO, Webigo, coiffeur, clinique, automobile" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      background-color: #020617; /* A very dark navy blue */
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    #background-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      z-index: -1;
+      background: linear-gradient(
+        -45deg, 
+        #020617, 
+        #030712, 
+        #111827, 
+        #082f49 /* A dark cyan/blue */
+      );
+      background-size: 400% 400%;
+      animation: gradient 15s ease infinite;
+    }
+
+    @keyframes gradient {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
+  }
+}
+</script>
+</head>
+<body class="text-gray-200">
+  <div id="background-animation"></div>
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
