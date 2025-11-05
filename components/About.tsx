@@ -23,17 +23,17 @@ const About: React.FC = () => {
   return (
     <section id="a-propos" className="py-20 md:py-28 bg-black/20">
       <div className="container mx-auto px-6">
-        <SectionTitle>À Propos de Webigo</SectionTitle>
+        <SectionTitle>Notre Histoire, Votre Succès</SectionTitle>
         <div ref={ref}>
           <div className="flex flex-col lg:flex-row items-center gap-12">
             <div className={`lg:w-1/2 transition-all duration-700 ease-out ${inView ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
-              <h3 className="text-2xl font-bold text-indigo-400 mb-4">Notre Mission</h3>
-              <p className="text-gray-300 mb-6 leading-relaxed">
-                Chez Webigo, nous sommes passionnés par la création d'expériences numériques qui transcendent l'ordinaire. Nous croyons que chaque ligne de code et chaque pixel doit servir un objectif : propulser votre entreprise vers l'avenir. Notre mission est de transformer vos idées en réalités digitales percutantes et mémorables.
+              <h3 className="text-2xl font-bold text-indigo-400 mb-4">Notre Conviction</h3>
+              <p className="text-lg md:text-xl text-gray-300 mb-6 leading-relaxed">
+                Notre histoire a commencé avec une idée simple : chaque artisan, chaque commerçant, chaque entrepreneur mérite un site web qui raconte son histoire avec passion et efficacité. Nous ne sommes pas une agence comme les autres ; nous sommes votre partenaire digital, dédié à transformer votre vision en une plateforme qui vous ressemble et attire vos clients idéaux.
               </p>
-              <h3 className="text-2xl font-bold text-indigo-400 mb-4">Notre Vision</h3>
-              <p className="text-gray-300 leading-relaxed">
-                Nous aspirons à être à la pointe de l'innovation web, en intégrant les dernières technologies pour construire des sites non seulement beaux et fonctionnels, mais aussi intelligents et évolutifs. Nous visons un web où le design sobre et l'efficacité technique se rencontrent pour créer une synergie parfaite.
+              <h3 className="text-2xl font-bold text-indigo-400 mb-4">Notre Objectif</h3>
+              <p className="text-lg md:text-xl text-gray-300 leading-relaxed">
+                Nous voulons démystifier la technologie. Nous créons des sites performants avec les outils les plus modernes, mais nous les concevons pour être simples, intuitifs et, surtout, pour apporter des résultats concrets à votre activité. Votre succès est la seule mesure du nôtre.
               </p>
             </div>
             <div className={`lg:w-1/2 flex justify-center items-center transition-all duration-700 ease-out delay-200 ${inView ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}>

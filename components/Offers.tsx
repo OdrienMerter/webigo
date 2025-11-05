@@ -4,7 +4,7 @@ import SectionTitle from './SectionTitle';
 const offers = [
   {
     title: 'Site Vitrine Essentiel',
-    price: 'À partir de 1200€',
+    price: 'À partir de 800€',
     description: 'La solution parfaite pour marquer votre présence en ligne avec un site professionnel et moderne.',
     features: [
       'Design sur mesure (1 maquette)',
@@ -19,7 +19,7 @@ const offers = [
   },
   {
     title: 'Solution Performance',
-    price: 'À partir de 2500€',
+    price: 'À partir de 1500€',
     description: 'Pour les entreprises qui visent la croissance avec des fonctionnalités avancées et une visibilité accrue.',
     features: [
       'Tout de l\'offre Essentiel',
@@ -49,7 +49,11 @@ const offers = [
   },
 ];
 
-const PricingCard: React.FC<{ offer: typeof offers[0], index: number }> = ({ offer, index }) => {
+interface OffersProps {
+  onOfferSelect: (offerTitle: string) => void;
+}
+
+const PricingCard: React.FC<{ offer: typeof offers[0], index: number, onOfferSelect: (offerTitle: string) => void }> = ({ offer, index, onOfferSelect }) => {
     const [inView, setInView] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
 
@@ -67,6 +71,10 @@ const PricingCard: React.FC<{ offer: typeof offers[0], index: number }> = ({ off
         if (currentRef) observer.observe(currentRef);
         return () => { if (currentRef) observer.unobserve(currentRef); };
     }, []);
+
+    const handleSelect = () => {
+        onOfferSelect(offer.title);
+    };
 
     return (
         <div
@@ -94,11 +102,8 @@ const PricingCard: React.FC<{ offer: typeof offers[0], index: number }> = ({ off
                     </li>
                 ))}
             </ul>
-            <a href="/#/contact"
-                onClick={(e) => {
-                    e.preventDefault();
-                    window.location.hash = '/contact';
-                }}
+            <button
+                onClick={handleSelect}
                 className={`
                 mt-8 block w-full text-center px-6 py-3 font-bold rounded-full transition-all duration-300 transform hover:scale-105
                 ${offer.highlight
@@ -107,13 +112,13 @@ const PricingCard: React.FC<{ offer: typeof offers[0], index: number }> = ({ off
                 }
             `}>
                 {offer.cta}
-            </a>
+            </button>
         </div>
     );
 };
 
 
-const Offers: React.FC = () => {
+const Offers: React.FC<OffersProps> = ({ onOfferSelect }) => {
   return (
     <section id="offres" className="py-20 md:py-28">
       <div className="container mx-auto px-6">
@@ -123,8 +128,21 @@ const Offers: React.FC = () => {
         </p>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-4 items-stretch">
           {offers.map((offer, index) => (
-            <PricingCard key={index} offer={offer} index={index} />
+            <PricingCard key={index} offer={offer} index={index} onOfferSelect={onOfferSelect} />
           ))}
+        </div>
+        <div className="mt-16 text-center">
+          <a href="/#/" 
+             onClick={(e) => {
+                e.preventDefault();
+                window.location.hash = '/';
+             }}
+             className="inline-flex items-center text-indigo-400 hover:text-indigo-300 transition-colors duration-300 group">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 transition-transform duration-300 group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Retour à l'accueil
+          </a>
         </div>
       </div>
     </section>

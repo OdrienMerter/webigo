@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 
 interface CarouselItem {
@@ -15,6 +14,7 @@ interface Carousel3DProps {
 
 const Carousel3D: React.FC<Carousel3DProps> = ({ items, isMenuOpen }) => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [loadedItems, setLoadedItems] = useState<Set<number>>(new Set());
   const numItems = items.length;
 
   const handleNav = (direction: 'next' | 'prev') => {
@@ -23,6 +23,10 @@ const Carousel3D: React.FC<Carousel3DProps> = ({ items, isMenuOpen }) => {
     } else {
       setActiveIndex((prevIndex) => (prevIndex - 1 + numItems) % numItems);
     }
+  };
+
+  const handleImageLoad = (id: number) => {
+    setLoadedItems(prev => new Set(prev).add(id));
   };
 
   const getStyle = (index: number): React.CSSProperties => {
@@ -63,23 +67,36 @@ const Carousel3D: React.FC<Carousel3DProps> = ({ items, isMenuOpen }) => {
         className="relative w-[300px] h-[200px] md:w-[480px] md:h-[320px]"
         style={{ perspective: '1800px', transformStyle: 'preserve-3d' }}
       >
-        {items.map((item, index) => (
-          <a
-            key={item.id}
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`Voir le projet ${item.title}`}
-            className="block absolute w-full h-full left-0 top-0 border-2 border-indigo-500/30 rounded-lg overflow-hidden shadow-[0_0_15px_rgba(99,102,241,0.3)]"
-            style={getStyle(index)}
-          >
-            <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
-          </a>
-        ))}
+        {items.map((item, index) => {
+          const isLoaded = loadedItems.has(item.id);
+          return (
+            <a
+              key={item.id}
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Voir le projet ${item.title}`}
+              className="block absolute w-full h-full left-0 top-0 border-2 border-indigo-500/30 rounded-lg overflow-hidden shadow-[0_0_15px_rgba(99,102,241,0.3)] bg-gray-900"
+              style={getStyle(index)}
+            >
+              <img
+                src={item.imageUrl}
+                alt={item.title}
+                className={`w-full h-full object-cover transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+                onLoad={() => handleImageLoad(item.id)}
+              />
+              {!isLoaded && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-12 h-12 border-4 border-dashed rounded-full animate-spin border-indigo-400"></div>
+                </div>
+              )}
+            </a>
+          );
+        })}
       </div>
       <button
         onClick={() => handleNav('prev')}
-        className="absolute left-0 md:left-[10%] lg:left-[20%] top-1/2 -translate-y-1/2 text-indigo-400 p-2 rounded-full bg-gray-800/50 hover:bg-gray-700/80 transition-all text-2xl md:text-4xl z-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        className={`absolute left-0 md:left-[10%] lg:left-[20%] top-1/2 -translate-y-1/2 text-indigo-400 p-2 rounded-full bg-gray-800/50 hover:bg-gray-700/80 transition-opacity duration-300 text-2xl md:text-4xl z-50 ${isMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
         aria-label="Previous project"
         disabled={isMenuOpen}
       >
@@ -87,7 +104,7 @@ const Carousel3D: React.FC<Carousel3DProps> = ({ items, isMenuOpen }) => {
       </button>
       <button
         onClick={() => handleNav('next')}
-        className="absolute right-0 md:right-[10%] lg:right-[20%] top-1/2 -translate-y-1/2 text-indigo-400 p-2 rounded-full bg-gray-800/50 hover:bg-gray-700/80 transition-all text-2xl md:text-4xl z-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        className={`absolute right-0 md:right-[10%] lg:right-[20%] top-1/2 -translate-y-1/2 text-indigo-400 p-2 rounded-full bg-gray-800/50 hover:bg-gray-700/80 transition-opacity duration-300 text-2xl md:text-4xl z-50 ${isMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
         aria-label="Next project"
         disabled={isMenuOpen}
       >

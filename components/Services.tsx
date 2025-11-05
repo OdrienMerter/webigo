@@ -6,22 +6,22 @@ const services = [
   {
     icon: <CodeIcon />,
     title: 'Développement sur Mesure',
-    description: 'Nous créons des sites web et applications performants, sécurisés et adaptés à vos besoins spécifiques.',
+    description: 'Du site vitrine élégant à l\'application web complexe, nous codons des solutions robustes qui fonctionnent parfaitement sur tous les appareils.',
   },
   {
     icon: <DesignIcon />,
-    title: 'Design UI/UX Futuriste',
-    description: 'Des interfaces intuitives et esthétiques pour une expérience utilisateur inoubliable et engageante.',
+    title: 'Design UI/UX Centré Client',
+    description: 'Nous concevons des parcours utilisateurs si intuitifs que vos clients se sentiront immédiatement chez eux, les incitant à passer à l\'action.',
   },
   {
     icon: <SeoIcon />,
-    title: 'Référencement SEO',
-    description: 'Optimisation de votre site pour les moteurs de recherche afin d\'améliorer votre visibilité et attirer plus de clients.',
+    title: 'Référencement SEO Efficace',
+    description: 'Nous construisons votre site pour qu\'il soit aimé par Google. Attirez plus de visiteurs qualifiés sans dépenser une fortune en publicité.',
   },
   {
     icon: <MaintenanceIcon />,
-    title: 'Maintenance & Évolution',
-    description: 'Nous assurons la maintenance, les mises à jour et l\'évolution de vos plateformes pour une tranquillité d\'esprit.',
+    title: 'Maintenance & Tranquillité',
+    description: 'Concentrez-vous sur votre métier, nous veillons sur votre site. Mises à jour, sécurité, sauvegardes... votre plateforme reste performante.',
   },
 ];
 

@@ -1,8 +1,9 @@
 import React from 'react';
 import Hero from './Hero';
-import Projects from './Projects';
 import Services from './Services';
 import About from './About';
+import WhyChooseUs from './WhyChooseUs';
+import Testimonials from './Testimonials';
 import Contact from './Contact';
 
 interface HomePageProps {
@@ -13,9 +14,10 @@ const HomePage: React.FC<HomePageProps> = ({ isMenuOpen }) => {
   return (
     <>
       <Hero isMenuOpen={isMenuOpen} />
-      <Projects />
-      <Services />
       <About />
+      <WhyChooseUs />
+      <Testimonials />
+      <Services />
       <Contact />
     </>
   );
