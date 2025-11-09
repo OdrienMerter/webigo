@@ -130,7 +130,7 @@ const Header: React.FC<HeaderProps> = ({ currentPage, isMenuOpen, setIsMenuOpen 
                         <svg className={`w-4 h-4 ml-2 transition-transform duration-200 ${openDropdown === link.label ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                      </a>
                      {openDropdown === link.label && (
-                         <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 bg-gray-800/90 backdrop-blur-md rounded-md shadow-lg border border-indigo-500/20 py-2">
+                         <div className="absolute top-full left-1/2 -translate-x-1/2 pt-4 pb-2 w-48 bg-gray-800/90 backdrop-blur-md rounded-md shadow-lg border border-indigo-500/20">
                             {link.subLinks?.map(subLink => (
                                 <a key={subLink.page} href={`/#/${subLink.page}`} onClick={(e) => handleNavClick(e, `/${subLink.page}`)} className={`block px-4 py-2 text-md transition-colors duration-200 ${getIsActive(subLink.page) ? 'text-indigo-300 font-semibold' : 'text-gray-300 hover:bg-indigo-500/20'}`}>
                                     {subLink.label}
