@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Webigo - Agence Digitale</title>
+  <meta name="description" content="Webigo est une agence digitale spécialisée dans la création de sites web modernes et performants pour les commerces et entreprises. Nous offrons des services de développement sur mesure, design UI/UX, et référencement SEO." />
+  <meta name="keywords" content="agence digitale, création de site web, développement web, site vitrine, portfolio, design UI/UX, SEO, Webigo, coiffeur, clinique, automobile" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    #background-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      z-index: -2;
+      background-color: #111827; /* Gray 900 - Darkest color from the old gradient */
+    }
+    
+    #background-grid {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        z-index: -1;
+        pointer-events: none;
+        background-image:
+            repeating-linear-gradient(45deg, rgba(99, 102, 241, 0.08) 0, rgba(99, 102, 241, 0.08) 1px, transparent 1px, transparent 22px),
+            repeating-linear-gradient(-45deg, rgba(139, 92, 246, 0.06) 0, rgba(139, 92, 246, 0.06) 1px, transparent 1px, transparent 22px);
+        background-size: 44px 44px;
+    }
+
+    @keyframes icon-pulse {
+      0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 4px rgba(139, 92, 246, 0.6));
+      }
+      50% {
+        transform: scale(1.15);
+        filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.9));
+      }
+    }
+    .animate-icon-pulse {
+        animation: icon-pulse 1.5s ease-in-out;
+    }
+
+    /* New styles for About section animation */
+    @keyframes draw-circle {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes spin-clockwise {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes spin-counter-clockwise {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(-360deg); }
+    }
+    
+    .spinning-circle {
+        transform-origin: center;
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
+  }
+}
+</script>
+</head>
+<body class="text-gray-300">
+  <div id="background-animation"></div>
+  <div id="background-grid"></div>
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
