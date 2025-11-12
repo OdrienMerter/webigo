@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Logo } from './Logo';
 
 interface NavLink {
@@ -34,6 +34,20 @@ const Header: React.FC<HeaderProps> = ({ currentPage, isMenuOpen, setIsMenuOpen 
   const [isScrolled, setIsScrolled] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [openMobileSubMenu, setOpenMobileSubMenu] = useState<string | null>(null);
+  const dropdownTimer = useRef<number | null>(null);
+
+  const handleTriggerEnter = (label: string) => {
+    if (dropdownTimer.current) {
+      clearTimeout(dropdownTimer.current);
+    }
+    setOpenDropdown(label);
+  };
+
+  const handleTriggerLeave = () => {
+    dropdownTimer.current = window.setTimeout(() => {
+      setOpenDropdown(null);
+    }, 200);
+  };
 
   useEffect(() => {
     const standalonePages = ['offres', 'devis', 'projets'];
@@ -114,18 +128,18 @@ const Header: React.FC<HeaderProps> = ({ currentPage, isMenuOpen, setIsMenuOpen 
     <>
       <header className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-gray-900/80 backdrop-blur-md shadow-lg shadow-indigo-500/10' : 'bg-transparent'}`}>
         <nav className="container mx-auto px-6 py-3 flex justify-between items-center">
-          <a href="/#/" onClick={(e) => handleNavClick(e, '/')} className="flex items-center gap-3 text-3xl font-bold text-white drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]">
+          <a href="/#/" onClick={(e) => handleNavClick(e, '/')} className="flex items-center gap-3 text-2xl md:text-3xl font-bold text-white drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]">
             <Logo className="h-10 w-10" />
             Webigo
           </a>
           
-          <div className="hidden lg:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 items-center space-x-6">
+          <div className="hidden md:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 items-center space-x-1 lg:space-x-4">
             {navLinks.map((link) => {
               if (link.isDropdown) {
                 const isActive = isParentActive(link);
                 return (
-                  <div key={link.label} className="relative" onMouseEnter={() => setOpenDropdown(link.label)} onMouseLeave={() => setOpenDropdown(null)}>
-                     <a href="/#/" onClick={(e) => handleNavClick(e, '/')} className={`flex items-center px-4 py-2 rounded-md text-lg transition-all duration-300 drop-shadow-[0_0_3px_rgba(139,92,246,0.4)] ${ isActive ? 'text-white bg-indigo-500/20 font-semibold' : 'text-gray-300 hover:text-indigo-300 hover:bg-gray-700/50'}`}>
+                  <div key={link.label} className="relative" onMouseEnter={() => handleTriggerEnter(link.label)} onMouseLeave={handleTriggerLeave}>
+                     <a href="/#/" onClick={(e) => handleNavClick(e, '/')} className={`flex items-center px-2 lg:px-4 py-2 rounded-md text-base lg:text-lg transition-all duration-300 drop-shadow-[0_0_3px_rgba(139,92,246,0.4)] ${ isActive ? 'text-white bg-indigo-500/20 font-semibold' : 'text-gray-300 hover:text-indigo-300 hover:bg-gray-700/50'}`}>
                         {link.label}
                         <svg className={`w-4 h-4 ml-2 transition-transform duration-200 ${openDropdown === link.label ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                      </a>
@@ -144,30 +158,30 @@ const Header: React.FC<HeaderProps> = ({ currentPage, isMenuOpen, setIsMenuOpen 
               const isActive = getIsActive(link.page!);
               if (link.isSpecial) {
                    return (
-                     <a key={link.page} href={`/#/${link.page}`} onClick={(e) => handleNavClick(e, `/${link.page}`)} className={`px-6 py-2 rounded-full text-lg transition-all duration-300 font-semibold border-2 ${ isActive ? 'bg-indigo-600 border-indigo-600 text-white shadow-[0_0_10px_rgba(139,92,246,0.7)]' : 'text-indigo-300 border-indigo-500 hover:bg-indigo-500/20 hover:text-white'}`}>
+                     <a key={link.page} href={`/#/${link.page}`} onClick={(e) => handleNavClick(e, `/${link.page}`)} className={`px-3 lg:px-6 py-2 rounded-full text-base lg:text-lg transition-all duration-300 font-semibold border-2 ${ isActive ? 'bg-indigo-600 border-indigo-600 text-white shadow-[0_0_10px_rgba(139,92,246,0.7)]' : 'text-indigo-300 border-indigo-500 hover:bg-indigo-500/20 hover:text-white'}`}>
                       {link.label}
                     </a>
                    );
                 }
                 return (
-                <a key={link.page} href={`/#/${link.page}`} onClick={(e) => handleNavClick(e, `/${link.page}`)} className={`px-4 py-2 rounded-md text-lg transition-all duration-300 drop-shadow-[0_0_3px_rgba(139,92,246,0.4)] ${ isActive ? 'text-white bg-indigo-500/20 font-semibold' : 'text-gray-300 hover:text-indigo-300 hover:bg-gray-700/50'}`}>
+                <a key={link.page} href={`/#/${link.page}`} onClick={(e) => handleNavClick(e, `/${link.page}`)} className={`px-2 lg:px-4 py-2 rounded-md text-base lg:text-lg transition-all duration-300 drop-shadow-[0_0_3px_rgba(139,92,246,0.4)] ${ isActive ? 'text-white bg-indigo-500/20 font-semibold' : 'text-gray-300 hover:text-indigo-300 hover:bg-gray-700/50'}`}>
                   {link.label}
                 </a>
               );
             })}
           </div>
           
-          <div className="lg:hidden">
+          <div className="md:hidden">
               <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-200 hover:text-indigo-400 focus:outline-none focus:text-indigo-400" aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}>
                 <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">{isMenuOpen ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /> : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />}</svg>
               </button>
           </div>
 
-          <div className="hidden lg:block w-32"></div>
+          <div className="hidden md:block w-20 lg:w-32"></div>
         </nav>
       </header>
 
-      <div className={`lg:hidden fixed inset-0 z-40 bg-gray-900/95 backdrop-blur-md transition-transform duration-300 ease-in-out ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`} role="dialog" aria-modal="true" aria-hidden={!isMenuOpen}>
+      <div className={`md:hidden fixed inset-0 z-40 bg-gray-900/95 backdrop-blur-md transition-transform duration-300 ease-in-out ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`} role="dialog" aria-modal="true" aria-hidden={!isMenuOpen}>
         <div className="flex flex-col items-center justify-center h-full">
           {navLinks.map((link, index) => (
             <React.Fragment key={link.label}>

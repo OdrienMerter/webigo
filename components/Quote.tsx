@@ -1,3 +1,12 @@
+// Fix: Define types for import.meta.env to resolve TypeScript errors.
+declare global {
+  interface ImportMeta {
+    readonly env: {
+      readonly VITE_API_BASE_URL?: string;
+    };
+  }
+}
+
 import React, { useState, useEffect } from 'react';
 import SectionTitle from './SectionTitle';
 
@@ -73,8 +82,10 @@ const Quote: React.FC<QuoteProps> = ({ selectedOffer }) => {
 
     setFormStatus({ type: 'loading', message: '' });
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+
     try {
-      const response = await fetch('http://localhost:3001/api/devis', {
+      const response = await fetch(`${API_BASE_URL}/api/devis`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -113,7 +124,7 @@ const Quote: React.FC<QuoteProps> = ({ selectedOffer }) => {
     if (formStatus.type === 'loading') {
       return (
         <>
-          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
@@ -151,7 +162,7 @@ const Quote: React.FC<QuoteProps> = ({ selectedOffer }) => {
           {formStatus.type === 'success' ? (
             <div className="text-center p-8 bg-gray-800/50 rounded-lg border border-indigo-700/50 transition-opacity duration-500 animate-fade-in">
                 <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-green-900/50 flex items-center justify-center border-2 border-green-500">
-                    <svg className="w-10 h-10 text-green-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-10 h-10 text-green-400" xmlns="http://www.w.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                 </div>
