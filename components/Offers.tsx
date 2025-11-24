@@ -79,7 +79,7 @@ const PricingCard: React.FC<{ offer: typeof offers[0], index: number, onOfferSel
             ref={ref}
             className={`
                 min-w-full md:min-w-0 snap-center
-                flex flex-col rounded-xl p-6 md:p-8 border transition-all duration-500 ease-out h-full transform
+                flex flex-col rounded-xl p-6 md:p-8 border transition-all duration-500 ease-out transform
                 ${offer.highlight
                     ? 'bg-gray-800/90 border-indigo-500 shadow-2xl shadow-indigo-500/20 lg:scale-105'
                     : 'bg-gray-900/60 border-gray-700'
@@ -172,10 +172,10 @@ const Offers: React.FC<OffersProps> = ({ onOfferSelect }) => {
         <div 
             ref={scrollRef}
             onScroll={handleScroll}
-            className="flex flex-row overflow-x-auto snap-x snap-mandatory gap-0 pb-8 md:grid md:grid-cols-3 md:gap-4 md:items-stretch md:overflow-visible hide-scrollbar"
+            className="flex flex-row overflow-x-auto snap-x snap-mandatory touch-pan-y gap-0 pb-8 md:grid md:grid-cols-3 md:gap-4 md:items-stretch md:overflow-visible hide-scrollbar"
         >
           {offers.map((offer, index) => (
-            <div key={index} className="w-full flex-shrink-0 md:w-auto px-2 md:px-0 snap-center">
+            <div key={index} className="w-full flex-shrink-0 md:w-auto px-2 md:px-0 snap-center snap-always">
                  <PricingCard offer={offer} index={index} onOfferSelect={onOfferSelect} />
             </div>
           ))}
