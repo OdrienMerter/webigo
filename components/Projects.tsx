@@ -126,10 +126,10 @@ const Projects: React.FC<ProjectsProps> = ({ isPage = false }) => {
         <div 
             ref={scrollRef}
             onScroll={handleScroll}
-            className="flex flex-row overflow-x-auto snap-x snap-mandatory gap-0 pb-8 md:mx-0 md:px-0 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-8 md:overflow-visible hide-scrollbar"
+            className="flex flex-row overflow-x-auto snap-x snap-mandatory gap-0 pb-8 md:mx-0 md:px-0 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-8 md:overflow-visible hide-scrollbar touch-pan-y"
         >
           {projects.map((project, index) => (
-            <div key={index} className="w-full flex-shrink-0 md:w-auto px-2 md:px-0 snap-center">
+            <div key={index} className="w-full flex-shrink-0 md:w-auto px-2 md:px-0 snap-center snap-always">
                  <ProjectCard project={project} />
             </div>
           ))}

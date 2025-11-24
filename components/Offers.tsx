@@ -172,10 +172,10 @@ const Offers: React.FC<OffersProps> = ({ onOfferSelect }) => {
         <div 
             ref={scrollRef}
             onScroll={handleScroll}
-            className="flex flex-row overflow-x-auto snap-x snap-mandatory gap-0 pb-8 md:grid md:grid-cols-3 md:gap-4 md:items-stretch md:overflow-visible hide-scrollbar"
+            className="flex flex-row overflow-x-auto snap-x snap-mandatory gap-0 pb-8 md:grid md:grid-cols-3 md:gap-4 md:items-stretch md:overflow-visible hide-scrollbar touch-pan-y"
         >
           {offers.map((offer, index) => (
-            <div key={index} className="w-full flex-shrink-0 md:w-auto px-2 md:px-0 snap-center">
+            <div key={index} className="w-full flex-shrink-0 md:w-auto px-2 md:px-0 snap-center snap-always">
                  <PricingCard offer={offer} index={index} onOfferSelect={onOfferSelect} />
             </div>
           ))}
