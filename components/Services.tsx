@@ -92,14 +92,16 @@ const Services: React.FC = () => {
       <div className="container mx-auto px-4 md:px-6">
         <SectionTitle>Nos Services</SectionTitle>
         
-        {/* Container with horizontal scroll on mobile - Full Width Logic */}
+        {/* Container with horizontal scroll on mobile - Full Width Logic 
+            Retrait de touch-pan-y et snap-always
+        */}
         <div 
             ref={scrollRef}
             onScroll={handleScroll}
-            className="flex flex-row overflow-x-auto snap-x snap-mandatory gap-0 pb-6 md:grid md:grid-cols-2 md:gap-8 md:pb-0 md:overflow-visible hide-scrollbar touch-pan-y"
+            className="flex flex-row overflow-x-auto snap-x snap-mandatory gap-0 pb-6 md:grid md:grid-cols-2 md:gap-8 md:pb-0 md:overflow-visible hide-scrollbar"
         >
           {services.map((service, index) => (
-             <div key={index} className="w-full flex-shrink-0 md:w-auto px-2 md:px-0 snap-center snap-always">
+             <div key={index} className="w-full flex-shrink-0 md:w-auto px-2 md:px-0 snap-center">
                 <AnimatedServiceCard service={service} />
              </div>
           ))}

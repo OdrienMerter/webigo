@@ -18,9 +18,9 @@ const Carousel3D: React.FC<Carousel3DProps> = ({ items, isMenuOpen }) => {
   const [loadedItems, setLoadedItems] = useState<Set<number>>(new Set());
   const [isMobile, setIsMobile] = useState(false);
   
-  // États pour le swipe tactile
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  // États pour le swipe tactile (X et Y pour détecter l'angle)
+  const [touchStart, setTouchStart] = useState<{x: number, y: number} | null>(null);
+  const [touchEnd, setTouchEnd] = useState<{x: number, y: number} | null>(null);
 
   const numItems = items.length;
 
@@ -42,23 +42,34 @@ const Carousel3D: React.FC<Carousel3DProps> = ({ items, isMenuOpen }) => {
   };
 
   // Gestion du Swipe
-  const minSwipeDistance = 50;
+  const minSwipeDistance = 40; // Seuil réduit pour plus de réactivité
 
   const onTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
+    setTouchStart({
+        x: e.targetTouches[0].clientX,
+        y: e.targetTouches[0].clientY
+    });
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
+    setTouchEnd({
+        x: e.targetTouches[0].clientX,
+        y: e.targetTouches[0].clientY
+    });
   };
 
   const onTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
     
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
+    const distanceX = touchStart.x - touchEnd.x;
+    const distanceY = touchStart.y - touchEnd.y;
+    
+    // Si le mouvement est principalement vertical, on ne fait rien (on laisse scroller la page)
+    if (Math.abs(distanceY) > Math.abs(distanceX)) return;
+
+    const isLeftSwipe = distanceX > minSwipeDistance;
+    const isRightSwipe = distanceX < -minSwipeDistance;
 
     if (isLeftSwipe) {
       handleNav('next');
@@ -176,7 +187,7 @@ const Carousel3D: React.FC<Carousel3DProps> = ({ items, isMenuOpen }) => {
         &#x276F;
       </button>
 
-      {/* Pagination Dots - Redescendus pour l'esthétique */}
+      {/* Pagination Dots */}
       <div className={`absolute bottom-2 md:bottom-6 flex gap-2 z-40 transition-opacity duration-300 ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`}>
         {items.map((_, index) => (
           <button

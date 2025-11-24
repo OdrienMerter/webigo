@@ -122,14 +122,16 @@ const Projects: React.FC<ProjectsProps> = ({ isPage = false }) => {
             </p>
         )}
         
-        {/* Horizontal Scroll on Mobile - Full Width Logic */}
+        {/* Horizontal Scroll on Mobile - Full Width Logic 
+            Retrait de touch-pan-y et snap-always
+        */}
         <div 
             ref={scrollRef}
             onScroll={handleScroll}
-            className="flex flex-row overflow-x-auto snap-x snap-mandatory gap-0 pb-8 md:mx-0 md:px-0 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-8 md:overflow-visible hide-scrollbar touch-pan-y"
+            className="flex flex-row overflow-x-auto snap-x snap-mandatory gap-0 pb-8 md:mx-0 md:px-0 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-8 md:overflow-visible hide-scrollbar"
         >
           {projects.map((project, index) => (
-            <div key={index} className="w-full flex-shrink-0 md:w-auto px-2 md:px-0 snap-center snap-always">
+            <div key={index} className="w-full flex-shrink-0 md:w-auto px-2 md:px-0 snap-center">
                  <ProjectCard project={project} />
             </div>
           ))}
