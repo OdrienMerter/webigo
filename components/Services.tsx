@@ -26,7 +26,7 @@ const services = [
   },
 ];
 
-const AnimatedServiceCard: React.FC<{ service: typeof services[0], index: number }> = ({ service, index }) => {
+const AnimatedServiceCard: React.FC<{ service: typeof services[0] }> = ({ service }) => {
     return (
         <div
             className={`
@@ -100,7 +100,7 @@ const Services: React.FC = () => {
         >
           {services.map((service, index) => (
              <div key={index} className="w-full flex-shrink-0 md:w-auto px-2 md:px-0 snap-center">
-                <AnimatedServiceCard service={service} index={index} />
+                <AnimatedServiceCard service={service} />
              </div>
           ))}
         </div>
