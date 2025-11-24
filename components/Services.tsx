@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect } from 'react';
 import { CodeIcon, DesignIcon, SeoIcon, MaintenanceIcon } from './ServiceIcons';
 import SectionTitle from './SectionTitle';
@@ -5,23 +6,23 @@ import SectionTitle from './SectionTitle';
 const services = [
   {
     icon: <CodeIcon />,
-    title: 'Développement sur Mesure',
-    description: 'Du site vitrine élégant à l\'application web complexe, nous codons des solutions robustes qui fonctionnent parfaitement sur tous les appareils.',
+    title: 'Développement',
+    description: 'Sites vitrines élégants et applications web robustes, optimisés pour tous les appareils.',
   },
   {
     icon: <DesignIcon />,
-    title: 'Design UI/UX Centré Client',
-    description: 'Nous concevons des parcours utilisateurs si intuitifs que vos clients se sentiront immédiatement chez eux, les incitant à passer à l\'action.',
+    title: 'Design UI/UX',
+    description: 'Des interfaces intuitives et modernes qui convertissent vos visiteurs en clients fidèles.',
   },
   {
     icon: <SeoIcon />,
-    title: 'Référencement SEO Efficace',
-    description: 'Nous construisons votre site pour qu\'il soit aimé par Google. Attirez plus de visiteurs qualifiés sans dépenser une fortune en publicité.',
+    title: 'Référencement',
+    description: 'Propulsez votre site en haut des résultats Google et attirez un trafic qualifié.',
   },
   {
     icon: <MaintenanceIcon />,
-    title: 'Maintenance & Tranquillité',
-    description: 'Concentrez-vous sur votre métier, nous veillons sur votre site. Mises à jour, sécurité, sauvegardes... votre plateforme reste performante.',
+    title: 'Maintenance',
+    description: 'Sécurité, mises à jour et sauvegardes. Dormez tranquille, on gère tout.',
   },
 ];
 
@@ -47,15 +48,19 @@ const AnimatedServiceCard: React.FC<{ service: typeof services[0], index: number
     return (
         <div
             ref={ref}
-            className={`flex items-start p-6 bg-gray-800/50 rounded-lg border border-gray-700 hover:border-indigo-500/50 transition-all duration-500 ease-out ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+            className={`
+                min-w-[280px] md:min-w-0 snap-center
+                flex flex-col md:flex-row items-start p-6 bg-gray-800/50 rounded-lg border border-gray-700 hover:border-indigo-500/50 transition-all duration-500 ease-out
+                ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}
+            `}
             style={{ transitionDelay: `${index * 100}ms` }}
         >
-            <div className={`mr-6 text-indigo-400 ${inView ? 'animate-icon-pulse' : ''}`}>
+            <div className={`mb-4 md:mb-0 md:mr-6 text-indigo-400 ${inView ? 'animate-icon-pulse' : ''}`}>
                 {service.icon}
             </div>
             <div>
                 <h3 className="text-xl font-bold text-white mb-2">{service.title}</h3>
-                <p className="text-gray-400">{service.description}</p>
+                <p className="text-gray-400 text-sm md:text-base">{service.description}</p>
             </div>
         </div>
     );
@@ -65,6 +70,8 @@ const AnimatedServiceCard: React.FC<{ service: typeof services[0], index: number
 const Services: React.FC = () => {
   const [inView, setInView] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -81,28 +88,82 @@ const Services: React.FC = () => {
     return () => { if (currentRef) observer.unobserve(currentRef); };
   }, []);
 
+  const handleScroll = () => {
+    if (scrollRef.current) {
+        const { scrollLeft, scrollWidth } = scrollRef.current;
+        // On estime l'index en fonction de la largeur totale divisée par le nombre d'éléments
+        // Cela fonctionne même si les largeurs d'écran changent
+        const itemWidth = scrollWidth / services.length;
+        const newIndex = Math.round(scrollLeft / itemWidth);
+        setActiveIndex(newIndex);
+    }
+  };
+
+  const scrollToService = (index: number) => {
+      if (scrollRef.current) {
+          const { scrollWidth } = scrollRef.current;
+          const itemWidth = scrollWidth / services.length;
+          scrollRef.current.scrollTo({
+              left: index * itemWidth,
+              behavior: 'smooth'
+          });
+      }
+  };
+
   return (
-    <section id="services" className="py-20 md:py-28" ref={ref}>
-      <div className="container mx-auto px-6">
+    <section id="services" className="py-16 md:py-28" ref={ref}>
+      <div className="container mx-auto px-4 md:px-6">
         <SectionTitle>Nos Services</SectionTitle>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        {/* Container with horizontal scroll on mobile */}
+        <div 
+            ref={scrollRef}
+            onScroll={handleScroll}
+            className="flex flex-row overflow-x-auto snap-x snap-mandatory gap-4 pb-6 md:grid md:grid-cols-2 md:gap-8 md:pb-0 md:overflow-visible hide-scrollbar"
+        >
           {services.map((service, index) => (
             <AnimatedServiceCard key={index} service={service} index={index} />
           ))}
         </div>
-        <div className={`mt-16 text-center transition-all duration-700 ease-out delay-500 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+
+        {/* Mobile Pagination Dots */}
+        <div className="flex justify-center gap-2 mt-2 md:hidden">
+            {services.map((_, index) => (
+                <button
+                    key={index}
+                    onClick={() => scrollToService(index)}
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                        index === activeIndex 
+                        ? 'w-8 bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]' 
+                        : 'w-2 bg-gray-700'
+                    }`}
+                    aria-label={`Voir le service ${index + 1}`}
+                />
+            ))}
+        </div>
+        
+        <div className={`mt-8 md:mt-16 text-center transition-all duration-700 ease-out delay-500 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
               <a 
                   href="/#/offres" 
                   onClick={(e) => {
                       e.preventDefault();
                       window.location.hash = '/offres';
                   }}
-                  className="inline-block px-10 py-4 bg-indigo-600 text-white font-bold rounded-full transition-all duration-300 hover:bg-indigo-500 hover:shadow-[0_0_20px_rgba(139,92,246,0.6)] transform hover:scale-105 text-lg"
+                  className="inline-block px-8 py-3 md:px-10 md:py-4 bg-indigo-600 text-white font-bold rounded-full transition-all duration-300 hover:bg-indigo-500 hover:shadow-[0_0_20px_rgba(139,92,246,0.6)] transform hover:scale-105 text-base md:text-lg"
               >
-                  Découvrez nos offres
+                  Voir les Offres
               </a>
           </div>
       </div>
+      <style>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </section>
   );
 };

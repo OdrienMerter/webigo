@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Backend server for the Webigo Digital Agency website.",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "start": "node server.js"
   },

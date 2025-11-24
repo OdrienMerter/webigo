@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 
 interface CarouselItem {
   id: number;
@@ -15,7 +16,17 @@ interface Carousel3DProps {
 const Carousel3D: React.FC<Carousel3DProps> = ({ items, isMenuOpen }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [loadedItems, setLoadedItems] = useState<Set<number>>(new Set());
+  const [isMobile, setIsMobile] = useState(false);
   const numItems = items.length;
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleNav = (direction: 'next' | 'prev') => {
     if (direction === 'next') {
@@ -25,6 +36,10 @@ const Carousel3D: React.FC<Carousel3DProps> = ({ items, isMenuOpen }) => {
     }
   };
 
+  const goToSlide = (index: number) => {
+    setActiveIndex(index);
+  }
+
   const handleImageLoad = (id: number) => {
     setLoadedItems(prev => new Set(prev).add(id));
   };
@@ -32,40 +47,47 @@ const Carousel3D: React.FC<Carousel3DProps> = ({ items, isMenuOpen }) => {
   const getStyle = (index: number): React.CSSProperties => {
     let offset = index - activeIndex;
     
+    // Gérer le bouclage circulaire (wrap-around)
     if (offset > numItems / 2) offset -= numItems;
     if (offset < -numItems / 2) offset += numItems;
 
     const absOffset = Math.abs(offset);
     
+    // On n'affiche que les éléments proches
     const isVisible = absOffset <= 2; 
 
-    const carouselRadius = 600; 
-    const angleIncrement = 40; 
-    const scaleReduction = 0.15; 
-
-    const angleRad = (offset * angleIncrement * Math.PI) / 180;
-    const translateX = carouselRadius * Math.sin(angleRad);
-    const translateZ = carouselRadius * (1 - Math.cos(angleRad));
+    // --- LOGIQUE "INTÉRIEUR" (PANORAMIQUE) ---
+    // Paramètres adaptatifs Mobile vs Desktop
+    const spacingX = isMobile ? 320 : 520; // Plus serré sur mobile
+    const zOffset = isMobile ? 100 : 150;  // Profondeur moins agressive sur mobile
+    const rotateAngle = isMobile ? 35 : 45; // Rotation plus douce sur mobile
+    
+    // Rotation : On tourne les éléments vers l'intérieur pour qu'ils regardent l'utilisateur.
+    const rotateY = offset * -rotateAngle; 
+    
+    // Profondeur : Les éléments latéraux s'avancent vers l'utilisateur (Z positif)
+    const translateZ = absOffset * zOffset;
 
     const transform = `
-      translateX(${translateX}px) 
-      translateZ(-${translateZ}px) 
-      scale(${1 - absOffset * scaleReduction})
+      translateX(${offset * spacingX}px) 
+      translateZ(${translateZ}px) 
+      rotateY(${rotateY}deg)
     `;
 
     return {
       transform,
       opacity: isVisible ? 1 : 0,
-      zIndex: numItems - absOffset,
-      transition: 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1)',
+      zIndex: numItems - absOffset, 
+      transition: 'transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.6s ease',
     };
   };
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center">
+    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-visible">
       <div
-        className="relative w-[300px] h-[200px] md:w-[480px] md:h-[320px]"
-        style={{ perspective: '1800px', transformStyle: 'preserve-3d' }}
+        className="relative w-[280px] h-[180px] md:w-[480px] md:h-[320px]"
+        // Sur mobile, on "recule" un peu la perspective (800px) pour que ça ne paraisse pas trop déformé
+        style={{ perspective: isMobile ? '800px' : '1000px', transformStyle: 'preserve-3d' }}
       >
         {items.map((item, index) => {
           const isLoaded = loadedItems.has(item.id);
@@ -76,7 +98,7 @@ const Carousel3D: React.FC<Carousel3DProps> = ({ items, isMenuOpen }) => {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`Voir le projet ${item.title}`}
-              className="block absolute w-full h-full left-0 top-0 border-2 border-indigo-500/30 rounded-lg overflow-hidden shadow-[0_0_15px_rgba(99,102,241,0.3)] bg-gray-900"
+              className="block absolute w-full h-full left-0 top-0 border-2 border-indigo-500/30 rounded-lg overflow-hidden shadow-[0_0_25px_rgba(99,102,241,0.2)] bg-gray-900"
               style={getStyle(index)}
             >
               <img
@@ -90,13 +112,18 @@ const Carousel3D: React.FC<Carousel3DProps> = ({ items, isMenuOpen }) => {
                   <div className="w-12 h-12 border-4 border-dashed rounded-full animate-spin border-indigo-400"></div>
                 </div>
               )}
+              {/* Overlay */}
+              <div className="absolute inset-0 bg-black transition-opacity duration-500 pointer-events-none" 
+                   style={{ opacity: index === activeIndex ? 0 : 0.4 }}></div>
             </a>
           );
         })}
       </div>
+      
+      {/* Contrôles de navigation */}
       <button
         onClick={() => handleNav('prev')}
-        className={`absolute left-0 md:left-[10%] lg:left-[20%] top-1/2 -translate-y-1/2 text-indigo-400 p-2 rounded-full bg-gray-800/50 hover:bg-gray-700/80 transition-opacity duration-300 text-2xl md:text-4xl z-50 ${isMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+        className={`absolute left-0 md:left-[5%] top-1/2 -translate-y-1/2 text-indigo-400 p-2 md:p-3 rounded-full bg-gray-900/50 hover:bg-indigo-600 hover:text-white border border-indigo-500/30 transition-all duration-300 text-xl md:text-2xl z-50 ${isMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
         aria-label="Previous project"
         disabled={isMenuOpen}
       >
@@ -104,12 +131,28 @@ const Carousel3D: React.FC<Carousel3DProps> = ({ items, isMenuOpen }) => {
       </button>
       <button
         onClick={() => handleNav('next')}
-        className={`absolute right-0 md:right-[10%] lg:right-[20%] top-1/2 -translate-y-1/2 text-indigo-400 p-2 rounded-full bg-gray-800/50 hover:bg-gray-700/80 transition-opacity duration-300 text-2xl md:text-4xl z-50 ${isMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+        className={`absolute right-0 md:right-[5%] top-1/2 -translate-y-1/2 text-indigo-400 p-2 md:p-3 rounded-full bg-gray-900/50 hover:bg-indigo-600 hover:text-white border border-indigo-500/30 transition-all duration-300 text-xl md:text-2xl z-50 ${isMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
         aria-label="Next project"
         disabled={isMenuOpen}
       >
         &#x276F;
       </button>
+
+      {/* Pagination Dots */}
+      <div className={`absolute bottom-2 md:bottom-4 flex gap-2 z-40 transition-opacity duration-300 ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`}>
+        {items.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => goToSlide(index)}
+            className={`h-2 rounded-full transition-all duration-300 ${
+              index === activeIndex 
+                ? 'w-8 bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]' 
+                : 'w-2 bg-gray-700 hover:bg-gray-600'
+            }`}
+            aria-label={`Aller au projet ${index + 1}`}
+          />
+        ))}
+      </div>
     </div>
   );
 };

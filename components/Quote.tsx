@@ -1,14 +1,13 @@
-// Fix: Define types for import.meta.env to resolve TypeScript errors.
-declare global {
-  interface ImportMeta {
-    readonly env: {
-      readonly VITE_API_BASE_URL?: string;
-    };
-  }
-}
 
 import React, { useState, useEffect } from 'react';
 import SectionTitle from './SectionTitle';
+
+// This list should ideally be shared, but for simplicity, we'll redefine it here.
+const offerOptions = [
+  'Site Vitrine Essentiel',
+  'Solution Performance',
+  'Projet Sur Mesure',
+];
 
 interface QuoteProps {
   selectedOffer: string | null;
@@ -18,241 +17,151 @@ const Quote: React.FC<QuoteProps> = ({ selectedOffer }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: '',
     company: '',
-    projectType: selectedOffer || '',
-    projectDescription: '',
-    budget: '',
-  });
-
-  const [errors, setErrors] = useState({
-    name: '',
-    email: '',
-    projectType: '',
-    projectDescription: '',
-  });
-
-  const [formStatus, setFormStatus] = useState<{ type: 'idle' | 'loading' | 'success' | 'error'; message: string }>({
-    type: 'idle',
+    phone: '',
+    offer: selectedOffer || '',
     message: '',
   });
 
-  const validateForm = () => {
-    const newErrors = { name: '', email: '', projectType: '', projectDescription: '' };
-    let isValid = true;
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
-    if (!formData.name.trim()) {
-      newErrors.name = 'Le nom est requis.';
-      isValid = false;
+  useEffect(() => {
+    if (selectedOffer && offerOptions.includes(selectedOffer)) {
+      setFormData(fd => ({ ...fd, offer: selectedOffer }));
     }
+  }, [selectedOffer]);
+
+  const validate = () => {
+    const newErrors: { [key: string]: string } = {};
+    if (!formData.name.trim()) newErrors.name = 'Le nom est requis.';
     if (!formData.email.trim()) {
-      newErrors.email = "L'email est requis.";
-      isValid = false;
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "L'adresse email est invalide.";
-      isValid = false;
+      newErrors.email = 'L\'email est requis.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'L\'adresse email n\'est pas valide.';
     }
-    if (!formData.projectType) {
-        newErrors.projectType = "Veuillez sélectionner un type de projet.";
-        isValid = false;
-    }
-    if (!formData.projectDescription.trim() || formData.projectDescription.trim().length < 10) {
-      newErrors.projectDescription = 'Veuillez décrire votre projet (10 caractères min).';
-      isValid = false;
-    }
+    if (!formData.offer) newErrors.offer = 'Veuillez sélectionner une offre.';
+    if (!formData.message.trim()) newErrors.message = 'Veuillez décrire votre projet.';
+    
     setErrors(newErrors);
-    return isValid;
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({ ...prevData, [name]: value }));
-    if (errors[name as keyof typeof errors]) {
-        setErrors(prevErrors => ({ ...prevErrors, [name]: '' }));
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setFormStatus({ type: 'idle', message: '' });
-
-    if (!validateForm()) {
+    if (!validate()) {
       return;
     }
-
-    setFormStatus({ type: 'loading', message: '' });
-
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
-
+    
+    setSubmissionStatus('submitting');
     try {
-      const response = await fetch(`${API_BASE_URL}/api/devis`, {
+      const response = await fetch('/api/devis', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(formData),
       });
 
-      const responseData = await response.json();
-
       if (!response.ok) {
-        throw new Error(responseData.message || 'Une erreur serveur est survenue.');
+        throw new Error('Network response was not ok');
       }
       
-      const successMessage = responseData.emailSent
-        ? 'Un email de confirmation vous a été adressé. Nous revenons vers vous au plus vite !'
-        : 'Votre demande a bien été enregistrée. Cependant, l\'email de confirmation n\'a pas pu être envoyé.';
+      setSubmissionStatus('success');
+      setFormData({ name: '', email: '', company: '', phone: '', offer: selectedOffer || '', message: '' });
 
-      setFormStatus({ type: 'success', message: successMessage });
-      
     } catch (error) {
-      let errorMessage = 'Une erreur est survenue. Veuillez réessayer ou nous contacter directement.';
-      if (error instanceof Error) {
-        if (error.message.includes('Failed to fetch')) {
-          errorMessage = "Impossible de joindre nos serveurs. Veuillez vérifier votre connexion internet et que le serveur backend est bien lancé.";
-        } else {
-          errorMessage = error.message;
-        }
-      }
-      setFormStatus({ type: 'error', message: errorMessage });
+      console.error('Submission error:', error);
+      setSubmissionStatus('error');
     }
-  };
-
-
-  const inputStyles = (hasError: boolean) =>
-    `w-full px-4 py-2 bg-gray-800 border rounded-md text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all duration-300 ${hasError ? 'border-red-500' : 'border-gray-700'}`;
-    
-  const SubmitButtonContent: React.FC = () => {
-    if (formStatus.type === 'loading') {
-      return (
-        <>
-          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          Envoi en cours...
-        </>
-      );
-    }
-    return <>Envoyer ma Demande</>;
   };
   
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, hash: string) => {
-    e.preventDefault();
-    window.location.hash = hash;
-  };
+  // Input field styling
+  const inputBaseClasses = "w-full px-4 py-3 rounded-md bg-gray-800 border text-gray-200 transition-colors duration-300 focus:outline-none focus:ring-2";
+  const inputNormalClasses = "border-gray-700 focus:border-indigo-500 focus:ring-indigo-500";
+  const inputErrorClasses = "border-red-500 focus:border-red-500 focus:ring-red-500";
 
   return (
     <section id="devis" className="py-20 md:py-28">
       <div className="container mx-auto px-6">
-        <SectionTitle>Demande de Devis Gratuit</SectionTitle>
-        {formStatus.type !== 'success' && (
-          selectedOffer ? (
-            <p className="text-center text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-12">
-              Vous êtes intéressé(e) par l'offre : <strong className="text-indigo-400">{selectedOffer}</strong>.
-              <br />
-              Pour affiner notre proposition, veuillez nous en dire plus sur votre projet.
-            </p>
-          ) : (
-            <p className="text-center text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-12">
-              Décrivez-nous votre projet et nous vous fournirons une estimation personnalisée dans les plus brefs délais.
-            </p>
-          )
-        )}
-
-        <div className="max-w-2xl mx-auto">
-          {formStatus.type === 'success' ? (
-            <div className="text-center p-8 bg-gray-800/50 rounded-lg border border-indigo-700/50 transition-opacity duration-500 animate-fade-in">
-                <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-green-900/50 flex items-center justify-center border-2 border-green-500">
-                    <svg className="w-10 h-10 text-green-400" xmlns="http://www.w.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-2">Demande envoyée !</h3>
-                <p className="text-gray-300">{formStatus.message}</p>
-                <a 
-                  href="/#/offres" 
-                  onClick={(e) => handleNavClick(e, '/offres')}
-                  className="mt-8 inline-block px-8 py-3 bg-indigo-600 text-white font-bold rounded-full transition-all duration-300 hover:bg-indigo-500 hover:shadow-[0_0_20px_rgba(139,92,246,0.6)] transform hover:scale-105"
-                >
-                  Retourner aux offres
-                </a>
+        <SectionTitle>Demander un Devis Gratuit</SectionTitle>
+        <p className="text-center text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-12">
+          Racontez-nous votre projet. Nous sommes impatients de découvrir comment nous pouvons vous aider à atteindre vos objectifs.
+        </p>
+        <div className="max-w-2xl mx-auto bg-gray-900/50 backdrop-blur-sm border border-indigo-500/20 rounded-lg p-8 shadow-lg">
+          {submissionStatus === 'success' ? (
+            <div className="text-center py-10">
+              <h3 className="text-2xl font-bold text-green-400 mb-4">Message envoyé avec succès !</h3>
+              <p className="text-gray-300">Merci de nous avoir contactés. Nous reviendrons vers vous dans les plus brefs délais.</p>
+              <a href="/#/" onClick={(e) => { e.preventDefault(); window.location.hash = '/'; }} className="mt-6 inline-block text-indigo-400 hover:text-indigo-300">
+                Retour à l'accueil
+              </a>
             </div>
           ) : (
-            <>
-              <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">Nom Complet <span className="text-red-500">*</span></label>
-                    <input type="text" name="name" id="name" value={formData.name} onChange={handleChange} className={inputStyles(!!errors.name)} required />
-                    {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
-                  </div>
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">Email <span className="text-red-500">*</span></label>
-                    <input type="email" name="email" id="email" value={formData.email} onChange={handleChange} className={inputStyles(!!errors.email)} required />
-                    {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-                  </div>
-                </div>
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label htmlFor="phone" className="block text-sm font-medium text-gray-300 mb-2">Téléphone (Optionnel)</label>
-                        <input type="tel" name="phone" id="phone" value={formData.phone} onChange={handleChange} className={inputStyles(false)} />
-                    </div>
-                    <div>
-                        <label htmlFor="company" className="block text-sm font-medium text-gray-300 mb-2">Entreprise (Optionnel)</label>
-                        <input type="text" name="company" id="company" value={formData.company} onChange={handleChange} className={inputStyles(false)} />
-                    </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                     <div>
-                        <label htmlFor="projectType" className="block text-sm font-medium text-gray-300 mb-2">Type de projet <span className="text-red-500">*</span></label>
-                        <select name="projectType" id="projectType" value={formData.projectType} onChange={handleChange} className={inputStyles(!!errors.projectType) + ' appearance-none'} required>
-                            <option value="">Sélectionnez un type</option>
-                            <option value="Site Vitrine Essentiel">Site Vitrine Essentiel</option>
-                            <option value="Solution Performance">Solution Performance</option>
-                            <option value="Projet Sur Mesure">Projet Sur Mesure</option>
-                            <option value="Autre">Autre (précisez ci-dessous)</option>
-                        </select>
-                        {errors.projectType && <p className="text-red-500 text-sm mt-1">{errors.projectType}</p>}
-                    </div>
-                     <div>
-                        <label htmlFor="budget" className="block text-sm font-medium text-gray-300 mb-2">Budget approximatif</label>
-                        <select name="budget" id="budget" value={formData.budget} onChange={handleChange} className={inputStyles(false) + ' appearance-none'}>
-                            <option value="">Sélectionnez une fourchette</option>
-                            <option value="<1500€">&lt; 1500€</option>
-                            <option value="1500-3000€">1500€ - 3000€</option>
-                            <option value="3000-5000€">3000€ - 5000€</option>
-                            <option value=">5000€">&gt; 5000€</option>
-                        </select>
-                    </div>
+            <form onSubmit={handleSubmit} noValidate className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="name" className="block text-gray-300 mb-2 font-medium">Nom complet <span className="text-indigo-400">*</span></label>
+                  <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required className={`${inputBaseClasses} ${errors.name ? inputErrorClasses : inputNormalClasses}`} />
+                  {errors.name && <p className="text-red-400 text-sm mt-1">{errors.name}</p>}
                 </div>
                 <div>
-                  <label htmlFor="projectDescription" className="block text-sm font-medium text-gray-300 mb-2">Décrivez votre projet <span className="text-red-500">*</span></label>
-                  <textarea name="projectDescription" id="projectDescription" rows={6} value={formData.projectDescription} onChange={handleChange} className={inputStyles(!!errors.projectDescription)} required></textarea>
-                  {errors.projectDescription && <p className="text-red-500 text-sm mt-1">{errors.projectDescription}</p>}
+                  <label htmlFor="email" className="block text-gray-300 mb-2 font-medium">Email <span className="text-indigo-400">*</span></label>
+                  <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} required className={`${inputBaseClasses} ${errors.email ? inputErrorClasses : inputNormalClasses}`} />
+                  {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email}</p>}
                 </div>
-                <div className="text-center pt-4">
-                  <button 
-                    type="submit" 
-                    className="inline-flex items-center justify-center px-10 py-4 bg-indigo-600 text-white font-bold rounded-full transition-all duration-300 hover:bg-indigo-500 hover:shadow-[0_0_20px_rgba(139,92,246,0.6)] transform hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:bg-indigo-600"
-                    disabled={formStatus.type === 'loading'}
-                  >
-                    <SubmitButtonContent />
-                  </button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="company" className="block text-gray-300 mb-2 font-medium">Entreprise (Optionnel)</label>
+                  <input type="text" id="company" name="company" value={formData.company} onChange={handleChange} className={`${inputBaseClasses} ${inputNormalClasses}`} />
                 </div>
-              </form>
-    
-              {formStatus.type === 'error' && (
-                <div className="text-center mt-6 text-red-300 bg-red-900/40 p-4 rounded-md border border-red-700/50">
-                    {formStatus.message}
+                <div>
+                  <label htmlFor="phone" className="block text-gray-300 mb-2 font-medium">Téléphone (Optionnel)</label>
+                  <input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleChange} className={`${inputBaseClasses} ${inputNormalClasses}`} />
                 </div>
+              </div>
+              <div>
+                <label htmlFor="offer" className="block text-gray-300 mb-2 font-medium">Offre qui vous intéresse <span className="text-indigo-400">*</span></label>
+                <select id="offer" name="offer" value={formData.offer} onChange={handleChange} required className={`${inputBaseClasses} ${errors.offer ? inputErrorClasses : inputNormalClasses}`}>
+                  <option value="" disabled>Sélectionnez une offre...</option>
+                  {offerOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                </select>
+                {errors.offer && <p className="text-red-400 text-sm mt-1">{errors.offer}</p>}
+              </div>
+              <div>
+                <label htmlFor="message" className="block text-gray-300 mb-2 font-medium">Décrivez votre projet <span className="text-indigo-400">*</span></label>
+                <textarea id="message" name="message" value={formData.message} onChange={handleChange} rows={6} required className={`${inputBaseClasses} ${errors.message ? inputErrorClasses : inputNormalClasses}`}></textarea>
+                {errors.message && <p className="text-red-400 text-sm mt-1">{errors.message}</p>}
+              </div>
+              
+              {submissionStatus === 'error' && (
+                <p className="text-red-400 text-center">Une erreur est survenue. Veuillez réessayer plus tard.</p>
               )}
-            </>
-          )}
 
-          <div className="mt-12 text-center text-gray-400 border-t border-gray-700/50 pt-8">
-            <p>
-              Pour toute question, vous pouvez aussi nous contacter directement par email à <a href="mailto:contact@webigo.fr" className="text-indigo-400 hover:underline">contact@webigo.fr</a>
-            </p>
-          </div>
+              <div>
+                <button type="submit" disabled={submissionStatus === 'submitting'} className="w-full px-8 py-4 bg-indigo-600 text-white font-bold rounded-full transition-all duration-300 hover:bg-indigo-500 hover:shadow-[0_0_20px_rgba(139,92,246,0.6)] disabled:bg-indigo-800 disabled:cursor-not-allowed flex items-center justify-center">
+                  {submissionStatus === 'submitting' ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Envoi en cours...
+                    </>
+                  ) : 'Envoyer ma demande'}
+                </button>
+              </div>
+            </form>
+          )}
         </div>
       </div>
     </section>

@@ -1,53 +1,54 @@
+
 import React, { useRef, useState, useEffect } from 'react';
 import SectionTitle from './SectionTitle';
 
 const projects = [
   {
     id: 1,
-    title: "Salon de Coiffure 'Éclat'",
-    description: "Un site vitrine élégant présentant les services, l'équipe et une galerie de réalisations, avec prise de rendez-vous en ligne.",
+    title: "Salon 'Éclat'",
+    description: "Site vitrine avec prise de RDV.",
     imageUrl: `https://picsum.photos/seed/salon/500/350`,
-    tags: ['Design UI/UX', 'Prise de RDV', 'Responsive'],
+    tags: ['UI/UX', 'RDV'],
     url: '#',
   },
   {
     id: 2,
-    title: "Clinique Dentaire 'Sourire'",
-    description: "Une plateforme claire et rassurante pour informer les patients sur les soins, les tarifs et l'équipe médicale.",
+    title: "Clinique 'Sourire'",
+    description: "Plateforme médicale rassurante.",
     imageUrl: `https://picsum.photos/seed/dentist/500/350`,
-    tags: ['React', 'Design sobre', 'Accessibilité'],
+    tags: ['React', 'Accessibilité'],
     url: '#',
   },
   {
     id: 3,
-    title: "Vendeur Automobile 'Prestige'",
-    description: "Un catalogue en ligne dynamique pour présenter les véhicules d'occasion avec fiches détaillées et filtres de recherche.",
+    title: "Auto 'Prestige'",
+    description: "Catalogue véhicules premium.",
     imageUrl: `https://picsum.photos/seed/car/500/350`,
-    tags: ['Catalogue', 'Recherche', 'Node.js'],
+    tags: ['Catalogue', 'Node.js'],
     url: '#',
   },
    {
     id: 4,
-    title: "Restaurant 'La Fourchette'",
-    description: "Un site gourmand avec menu interactif, réservation de table et mise en avant des produits locaux.",
+    title: "'La Fourchette'",
+    description: "Menu interactif et réservations.",
     imageUrl: `https://picsum.photos/seed/resto/500/350`,
-    tags: ['Design UI/UX', 'Réservation', 'Photographies'],
+    tags: ['UI/UX', 'Photo'],
     url: '#',
   },
    {
     id: 5,
-    title: "Cabinet d'Avocats 'Juris'",
-    description: "Un site institutionnel et professionnel pour présenter les domaines de compétence et inspirer la confiance.",
+    title: "Cabinet 'Juris'",
+    description: "Site institutionnel avocat.",
     imageUrl: `https://picsum.photos/seed/law/500/350`,
-    tags: ['Identité de marque', 'Sécurité', 'SEO'],
+    tags: ['Marque', 'SEO'],
     url: '#',
   },
    {
     id: 6,
-    title: "Boutique de Fleurs 'Flora'",
-    description: "Une boutique en ligne colorée et intuitive pour commander des bouquets avec livraison.",
+    title: "Fleurs 'Flora'",
+    description: "E-shop bouquets colorés.",
     imageUrl: `https://picsum.photos/seed/flowers/500/350`,
-    tags: ['e-Commerce', 'Paiement en ligne', 'Design UI/UX'],
+    tags: ['E-Commerce'],
     url: '#',
   }
 ];
@@ -76,22 +77,30 @@ const ProjectCard: React.FC<{ project: typeof projects[0] }> = ({ project }) => 
     return (
         <div
             ref={ref}
-            className={`group relative overflow-hidden rounded-lg bg-gray-800 border border-gray-700 transition-all duration-500 ease-out hover:border-indigo-500/70 hover:shadow-2xl hover:shadow-indigo-500/20 transform hover:-translate-y-2 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+            className={`
+                min-w-[260px] md:min-w-0 snap-center
+                group relative overflow-hidden rounded-xl bg-gray-800 border border-gray-700 transition-all duration-500 ease-out hover:border-indigo-500/70 hover:shadow-2xl hover:shadow-indigo-500/20 transform md:hover:-translate-y-2 
+                ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}
+            `}
         >
-            <img src={project.imageUrl} alt={project.title} className="w-full h-56 object-cover transition-transform duration-300 group-hover:scale-105" />
-            <div className="p-6">
-                <h3 className="text-xl font-bold text-indigo-400 mb-2">{project.title}</h3>
-                <p className="text-gray-400 mb-4 text-sm h-16">{project.description}</p>
+            <div className="relative h-40 md:h-56 overflow-hidden">
+                <img src={project.imageUrl} alt={project.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-60"></div>
+            </div>
+            
+            <div className="p-4 md:p-6">
+                <h3 className="text-lg md:text-xl font-bold text-indigo-400 mb-1">{project.title}</h3>
+                <p className="text-gray-400 mb-3 text-sm md:h-12 line-clamp-2">{project.description}</p>
                 <div className="flex flex-wrap gap-2">
                     {project.tags.map(tag => (
-                        <span key={tag} className="px-2 py-1 bg-gray-700 text-indigo-300 text-xs rounded-full">
+                        <span key={tag} className="px-2 py-0.5 bg-gray-700/50 border border-gray-600 text-indigo-300 text-[10px] md:text-xs rounded-full">
                             {tag}
                         </span>
                     ))}
                 </div>
             </div>
-            <a href={project.url} target="_blank" rel="noopener noreferrer" className="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <span className="text-white text-lg font-bold border-2 border-white rounded-full px-6 py-2">Voir le projet</span>
+            <a href={project.url} target="_blank" rel="noopener noreferrer" className="absolute inset-0 z-10">
+                 <span className="sr-only">Voir le projet {project.title}</span>
             </a>
         </div>
     );
@@ -102,24 +111,69 @@ interface ProjectsProps {
 }
 
 const Projects: React.FC<ProjectsProps> = ({ isPage = false }) => {
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const [activeIndex, setActiveIndex] = useState(0);
+
+    const handleScroll = () => {
+        if (scrollRef.current) {
+            const { scrollLeft, scrollWidth } = scrollRef.current;
+            // Estime l'élément courant
+            const itemWidth = scrollWidth / projects.length;
+            const newIndex = Math.round(scrollLeft / itemWidth);
+            setActiveIndex(newIndex);
+        }
+    };
+
+    const scrollToProject = (index: number) => {
+        if (scrollRef.current) {
+            const { scrollWidth } = scrollRef.current;
+            const itemWidth = scrollWidth / projects.length;
+            scrollRef.current.scrollTo({
+                left: index * itemWidth,
+                behavior: 'smooth'
+            });
+        }
+    };
+
   return (
-    <section id="projets" className={`py-20 md:py-28 ${isPage ? '' : 'bg-black/20'}`}>
-      <div className="container mx-auto px-6">
-        <SectionTitle>Nos Projets</SectionTitle>
+    <section id="projets" className={`py-16 md:py-28 ${isPage ? '' : 'bg-black/20'}`}>
+      <div className="container mx-auto px-4 md:px-6">
+        <SectionTitle>Réalisations</SectionTitle>
         {isPage && (
-            <p className="text-center text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-16">
-                Chaque projet est une histoire, celle d'une collaboration entre une vision et notre savoir-faire. Voici un aperçu de la qualité et de la diversité de notre travail. Imaginez ce que nous pourrions créer ensemble.
+            <p className="text-center text-base md:text-xl text-gray-300 max-w-3xl mx-auto mb-10 md:mb-16">
+                Découvrez comment nous avons aidé d'autres entreprises à se démarquer.
             </p>
         )}
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Horizontal Scroll on Mobile */}
+        <div 
+            ref={scrollRef}
+            onScroll={handleScroll}
+            className="flex flex-row overflow-x-auto snap-x snap-mandatory gap-4 pb-8 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-8 md:overflow-visible hide-scrollbar px-2 md:px-0"
+        >
           {projects.map((project) => (
             <ProjectCard key={project.id} project={project} />
           ))}
         </div>
+
+        {/* Mobile Pagination Dots */}
+        <div className="flex justify-center gap-2 -mt-4 mb-8 md:hidden">
+            {projects.map((_, index) => (
+                <button
+                    key={index}
+                    onClick={() => scrollToProject(index)}
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                        index === activeIndex 
+                        ? 'w-8 bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]' 
+                        : 'w-2 bg-gray-700'
+                    }`}
+                    aria-label={`Voir le projet ${index + 1}`}
+                />
+            ))}
+        </div>
         
         {isPage && (
-            <div className="mt-16 text-center">
+            <div className="mt-8 text-center hidden md:block">
               <a href="/#/" 
                  onClick={(e) => {
                     e.preventDefault();
@@ -134,6 +188,15 @@ const Projects: React.FC<ProjectsProps> = ({ isPage = false }) => {
             </div>
         )}
       </div>
+       <style>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </section>
   );
 };

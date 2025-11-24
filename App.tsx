@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import HomePage from './components/HomePage';
 import Offers from './components/Offers';
 import Quote from './components/Quote';
 import Projects from './components/Projects';
+import BottomNav from './components/BottomNav';
 
 const App: React.FC = () => {
   const parseHash = () => {
@@ -81,12 +83,13 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="bg-transparent min-h-screen">
+    <div className="bg-transparent min-h-screen pb-20 md:pb-0">
       <Header currentPage={location.page} isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
       <main>
         {renderPage()}
       </main>
       <Footer />
+      <BottomNav />
       <ScrollToTopButton />
     </div>
   );
@@ -119,7 +122,7 @@ const ScrollToTopButton: React.FC = () => {
   return (
     <button
       onClick={scrollToTop}
-      className={`fixed bottom-6 right-6 p-3 rounded-full bg-indigo-600 text-white shadow-lg transition-all duration-300 hover:bg-indigo-500 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-indigo-500 z-50 ${
+      className={`fixed bottom-24 right-6 p-3 rounded-full bg-indigo-600 text-white shadow-lg transition-all duration-300 hover:bg-indigo-500 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-indigo-500 z-40 md:bottom-6 ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
       }`}
       aria-label="Retour en haut de la page"
@@ -142,14 +145,14 @@ const Footer: React.FC = () => {
   ];
 
   return (
-    <footer className="bg-gray-900/50 backdrop-blur-sm border-t border-indigo-500/20 py-12 text-gray-400">
+    <footer className="bg-gray-900/50 backdrop-blur-sm border-t border-indigo-500/20 py-12 text-gray-400 mb-safe md:mb-0">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
           <div>
             <h3 className="text-lg font-bold text-white mb-4">Webigo</h3>
             <p>Créons ensemble votre présence en ligne.</p>
           </div>
-          <div>
+          <div className="hidden md:block">
             <h3 className="text-lg font-bold text-white mb-4">Navigation</h3>
             <ul className="space-y-2">
               {navLinks.map(link => (
@@ -161,13 +164,13 @@ const Footer: React.FC = () => {
               ))}
             </ul>
           </div>
-          <div>
+          <div className="pb-8 md:pb-0">
             <h3 className="text-lg font-bold text-white mb-4">Contact</h3>
             <p>Email: <a href="mailto:contact@webigo.fr" className="hover:text-indigo-400 transition-colors">contact@webigo.fr</a></p>
             <p>Téléphone: <a href="tel:+33123456789" className="hover:text-indigo-400 transition-colors">+33 6 50 85 63 25</a></p>
           </div>
         </div>
-        <div className="mt-12 pt-6 border-t border-gray-700/50 text-center">
+        <div className="mt-6 md:mt-12 pt-6 border-t border-gray-700/50 text-center">
           <p>&copy; {new Date().getFullYear()} Webigo. Tous droits réservés.</p>
         </div>
       </div>

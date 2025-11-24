@@ -1,13 +1,18 @@
-// --- CONFIGURATION ---
-const path = require('path');
-// Spécifie explicitement le chemin du fichier .env pour éviter les erreurs
-require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+import path from 'path';
+import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+import express from 'express';
+import cors from 'cors';
+import { createClient } from '@supabase/supabase-js';
+import { Resend } from 'resend';
+import { GoogleGenAI, Type } from '@google/genai';
 
-const express = require('express');
-const cors = require('cors');
-const { createClient } = require('@supabase/supabase-js');
-const { Resend } = require('resend');
-const { GoogleGenAI, Type } = require('@google/genai');
+// --- CONFIGURATION ---
+// Recreate __dirname for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '.env') });
+
 
 // --- VALIDATION DES VARIABLES D'ENVIRONNEMENT ---
 const requiredEnvVars = ['SUPABASE_URL', 'SUPABASE_ANON_KEY', 'RESEND_API_KEY', 'GOOGLE_API_KEY', 'AGENCY_EMAIL'];
@@ -36,7 +41,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Google AI
-const genAI = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
+const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
 
 
 // --- MIDDLEWARES ---
@@ -45,6 +50,54 @@ app.use(express.json());
 
 // --- UTILITAIRES ---
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+
+// --- FONCTION DE GÉNÉRATION D'IMAGE IA ---
+async function generateWebsitePreviewImage(websitePrompt) {
+  if (!websitePrompt?.designAesthetics) {
+    console.log("[IA Image] Manque de données de design pour générer une image.");
+    return null;
+  }
+
+  const { tone, visualInspiration, colorPalette } = websitePrompt.designAesthetics;
+
+  const imagePrompt = `
+    Website homepage UI/UX design.
+    Style: ${tone}, inspired by ${visualInspiration}.
+    Main colors: ${colorPalette.primary} (primary), ${colorPalette.secondary} (secondary), with ${colorPalette.accent} accents.
+    The design should feel: ${colorPalette.justification}.
+    Show a full-page layout including a header, hero section, and some content blocks.
+    Clean, modern, professional, high resolution, digital art.
+  `;
+  
+  console.log("[IA Image] Démarrage de la génération d'image...");
+
+  try {
+    const response = await ai.models.generateImages({
+      model: 'imagen-4.0-generate-001',
+      prompt: imagePrompt,
+      config: {
+        numberOfImages: 1,
+        outputMimeType: 'image/jpeg',
+        aspectRatio: '16:9',
+      },
+    });
+
+    if (response.generatedImages && response.generatedImages.length > 0) {
+      const base64ImageBytes = response.generatedImages[0].image.imageBytes;
+      const imageUrl = `data:image/jpeg;base64,${base64ImageBytes}`;
+      console.log("[IA Image] Génération d'image réussie.");
+      return imageUrl;
+    } else {
+      console.warn("[IA Image - AVERTISSEMENT] La réponse de l'API ne contient pas d'images.");
+      return null;
+    }
+  } catch (error) {
+    console.error("\n[ERREUR IA Image] La génération d'image a échoué.");
+    console.error("Détails de l'erreur:", error.message, "\n");
+    return null;
+  }
+}
 
 
 // --- FONCTION D'ANALYSE & GÉNÉRATION DE PROMPT IA ---
@@ -60,7 +113,7 @@ async function generateEnhancedAnalysis(formData) {
       
       const promptContent = `Analyse la demande de devis suivante et génère le cahier des charges pour un site web. Client: ${formData.name}, Entreprise: ${formData.company || 'Non spécifié'}, Type de projet: ${formData.projectType}, Budget: ${formData.budget || 'Non spécifié'}, Description: "${formData.projectDescription}"`;
 
-      const response = await genAI.models.generateContent({
+      const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
         contents: promptContent,
         config: {
@@ -219,8 +272,13 @@ app.post('/api/devis', async (req, res) => {
   try {
     // 1. Analyse IA améliorée et génération du prompt
     const enhancedAnalysis = await generateEnhancedAnalysis(req.body);
-    if (!enhancedAnalysis) {
-      console.log("[INFO] L'analyse IA n'a pas retourné de résultat, poursuite du processus sans les données IA.");
+    let imageUrl = null;
+
+    if (enhancedAnalysis?.websitePrompt) {
+      console.log("[INFO] Analyse IA réussie, tentative de génération d'image...");
+      imageUrl = await generateWebsitePreviewImage(enhancedAnalysis.websitePrompt);
+    } else {
+      console.log("[INFO] L'analyse IA n'a pas retourné de cahier des charges, la génération d'image est ignorée.");
     }
     
     // 2. Préparation des données pour l'enregistrement
@@ -325,7 +383,8 @@ app.post('/api/devis', async (req, res) => {
     
     res.status(201).json({ 
       message: 'Demande de devis reçue et enregistrée.',
-      emailSent: clientEmailSent
+      emailSent: clientEmailSent,
+      imageUrl: imageUrl,
     });
 
   } catch (error) {
