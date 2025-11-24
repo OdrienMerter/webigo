@@ -19,10 +19,8 @@ const Carousel3D: React.FC<Carousel3DProps> = ({ items, isMenuOpen }) => {
   const [isMobile, setIsMobile] = useState(false);
   
   // États pour le swipe tactile
-  const [touchStartX, setTouchStartX] = useState<number | null>(null);
-  const [touchStartY, setTouchStartY] = useState<number | null>(null);
-  const [touchEndX, setTouchEndX] = useState<number | null>(null);
-  const [touchEndY, setTouchEndY] = useState<number | null>(null);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   const numItems = items.length;
 
@@ -44,32 +42,23 @@ const Carousel3D: React.FC<Carousel3DProps> = ({ items, isMenuOpen }) => {
   };
 
   // Gestion du Swipe
-  const minSwipeDistance = 80; // Augmenté pour réduire la sensibilité
+  const minSwipeDistance = 50;
 
   const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEndX(null);
-    setTouchEndY(null);
-    setTouchStartX(e.targetTouches[0].clientX);
-    setTouchStartY(e.targetTouches[0].clientY);
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEndX(e.targetTouches[0].clientX);
-    setTouchEndY(e.targetTouches[0].clientY);
+    setTouchEnd(e.targetTouches[0].clientX);
   };
 
   const onTouchEnd = () => {
-    if (touchStartX === null || touchEndX === null || touchStartY === null || touchEndY === null) return;
+    if (!touchStart || !touchEnd) return;
     
-    const distanceX = touchStartX - touchEndX;
-    const distanceY = touchStartY - touchEndY;
-    
-    // Détection de l'angle : si le mouvement est majoritairement vertical, on ignore le swipe horizontal
-    // On ignore si le déplacement vertical est supérieur à 60% du déplacement horizontal
-    if (Math.abs(distanceY) > Math.abs(distanceX) * 0.6) return;
-
-    const isLeftSwipe = distanceX > minSwipeDistance;
-    const isRightSwipe = distanceX < -minSwipeDistance;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
 
     if (isLeftSwipe) {
       handleNav('next');
