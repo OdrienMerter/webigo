@@ -1,5 +1,4 @@
 
-import React from 'react';
 
 const iconClass = "w-10 h-10 drop-shadow-[0_0_5px_rgba(139,92,246,0.6)]";
 

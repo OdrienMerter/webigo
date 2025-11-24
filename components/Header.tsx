@@ -16,7 +16,7 @@ interface HeaderProps {
   setIsMenuOpen: (isOpen: boolean) => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ currentPage, isMenuOpen, setIsMenuOpen }) => {
+const Header: React.FC<HeaderProps> = ({ currentPage, setIsMenuOpen }) => {
   const navLinks: NavLink[] = [
     { 
         label: 'Qui sommes-nous', 
