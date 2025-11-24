@@ -78,7 +78,7 @@ const PricingCard: React.FC<{ offer: typeof offers[0], index: number, onOfferSel
         <div
             ref={ref}
             className={`
-                min-w-[85vw] md:min-w-0 snap-center
+                min-w-full md:min-w-0 snap-center
                 flex flex-col rounded-xl p-6 md:p-8 border transition-all duration-500 ease-out h-full transform
                 ${offer.highlight
                     ? 'bg-gray-800/90 border-indigo-500 shadow-2xl shadow-indigo-500/20 lg:scale-105'
@@ -123,6 +123,43 @@ const PricingCard: React.FC<{ offer: typeof offers[0], index: number, onOfferSel
 
 
 const Offers: React.FC<OffersProps> = ({ onOfferSelect }) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(1); // Default to Performance (index 1)
+
+  useEffect(() => {
+    // Scroll to the "Performance" offer on mobile load
+    if (scrollRef.current) {
+        // Un petit délai pour s'assurer que le rendu est terminé
+        setTimeout(() => {
+            if(scrollRef.current) {
+                const itemWidth = scrollRef.current.offsetWidth;
+                scrollRef.current.scrollTo({
+                    left: 1 * itemWidth, // Index 1 is Performance
+                    behavior: 'auto' // Instantané au chargement
+                });
+            }
+        }, 100);
+    }
+  }, []);
+
+  const handleScroll = () => {
+    if (scrollRef.current) {
+        const { scrollLeft, offsetWidth } = scrollRef.current;
+        const newIndex = Math.round(scrollLeft / offsetWidth);
+        setActiveIndex(Math.max(0, Math.min(newIndex, offers.length - 1)));
+    }
+  };
+
+  const scrollToOffer = (index: number) => {
+      if (scrollRef.current) {
+          const itemWidth = scrollRef.current.offsetWidth;
+          scrollRef.current.scrollTo({
+              left: index * itemWidth,
+              behavior: 'smooth'
+          });
+      }
+  };
+
   return (
     <section id="offres" className="py-16 md:py-28">
       <div className="container mx-auto px-4 md:px-6">
@@ -131,11 +168,33 @@ const Offers: React.FC<OffersProps> = ({ onOfferSelect }) => {
           Des solutions claires, sans coûts cachés.
         </p>
         
-        {/* Horizontal Scroll Container for Mobile */}
-        <div className="flex flex-row overflow-x-auto snap-x snap-mandatory gap-4 pb-8 md:grid md:grid-cols-3 md:gap-4 md:items-stretch md:overflow-visible hide-scrollbar px-2 md:px-0">
+        {/* Horizontal Scroll Container for Mobile - Full Width Items */}
+        <div 
+            ref={scrollRef}
+            onScroll={handleScroll}
+            className="flex flex-row overflow-x-auto snap-x snap-mandatory gap-0 pb-8 md:grid md:grid-cols-3 md:gap-4 md:items-stretch md:overflow-visible hide-scrollbar"
+        >
           {offers.map((offer, index) => (
-            <PricingCard key={index} offer={offer} index={index} onOfferSelect={onOfferSelect} />
+            <div key={index} className="w-full flex-shrink-0 md:w-auto px-2 md:px-0 snap-center">
+                 <PricingCard offer={offer} index={index} onOfferSelect={onOfferSelect} />
+            </div>
           ))}
+        </div>
+
+        {/* Mobile Pagination Dots */}
+        <div className="flex justify-center gap-2 -mt-4 mb-8 md:hidden">
+            {offers.map((_, index) => (
+                <button
+                    key={index}
+                    onClick={() => scrollToOffer(index)}
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                        index === activeIndex 
+                        ? 'w-8 bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]' 
+                        : 'w-2 bg-gray-700'
+                    }`}
+                    aria-label={`Voir l'offre ${offers[index].title}`}
+                />
+            ))}
         </div>
 
         <div className="md:mt-12 text-center hidden md:block">

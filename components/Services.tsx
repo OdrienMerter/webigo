@@ -27,35 +27,15 @@ const services = [
 ];
 
 const AnimatedServiceCard: React.FC<{ service: typeof services[0], index: number }> = ({ service, index }) => {
-    const [inView, setInView] = useState(false);
-    const ref = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) {
-                    setInView(true);
-                    observer.unobserve(entry.target);
-                }
-            },
-            { threshold: 0.5 }
-        );
-        const currentRef = ref.current;
-        if (currentRef) observer.observe(currentRef);
-        return () => { if (currentRef) observer.unobserve(currentRef); };
-    }, []);
-
     return (
         <div
-            ref={ref}
             className={`
-                min-w-[280px] md:min-w-0 snap-center
-                flex flex-col md:flex-row items-start p-6 bg-gray-800/50 rounded-lg border border-gray-700 hover:border-indigo-500/50 transition-all duration-500 ease-out
-                ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}
+                w-full md:w-auto min-h-[200px] snap-center
+                flex flex-col md:flex-row items-start p-6 bg-gray-800/50 rounded-lg border border-gray-700 hover:border-indigo-500/50 transition-all duration-300 ease-out
+                opacity-100 translate-y-0
             `}
-            style={{ transitionDelay: `${index * 100}ms` }}
         >
-            <div className={`mb-4 md:mb-0 md:mr-6 text-indigo-400 ${inView ? 'animate-icon-pulse' : ''}`}>
+            <div className={`mb-4 md:mb-0 md:mr-6 text-indigo-400`}>
                 {service.icon}
             </div>
             <div>
@@ -90,19 +70,16 @@ const Services: React.FC = () => {
 
   const handleScroll = () => {
     if (scrollRef.current) {
-        const { scrollLeft, scrollWidth } = scrollRef.current;
-        // On estime l'index en fonction de la largeur totale divisée par le nombre d'éléments
-        // Cela fonctionne même si les largeurs d'écran changent
-        const itemWidth = scrollWidth / services.length;
-        const newIndex = Math.round(scrollLeft / itemWidth);
-        setActiveIndex(newIndex);
+        const { scrollLeft, offsetWidth } = scrollRef.current;
+        const newIndex = Math.round(scrollLeft / offsetWidth);
+        const clampedIndex = Math.max(0, Math.min(newIndex, services.length - 1));
+        setActiveIndex(clampedIndex);
     }
   };
 
   const scrollToService = (index: number) => {
       if (scrollRef.current) {
-          const { scrollWidth } = scrollRef.current;
-          const itemWidth = scrollWidth / services.length;
+          const itemWidth = scrollRef.current.offsetWidth;
           scrollRef.current.scrollTo({
               left: index * itemWidth,
               behavior: 'smooth'
@@ -115,14 +92,16 @@ const Services: React.FC = () => {
       <div className="container mx-auto px-4 md:px-6">
         <SectionTitle>Nos Services</SectionTitle>
         
-        {/* Container with horizontal scroll on mobile */}
+        {/* Container with horizontal scroll on mobile - Full Width Logic */}
         <div 
             ref={scrollRef}
             onScroll={handleScroll}
-            className="flex flex-row overflow-x-auto snap-x snap-mandatory gap-4 pb-6 md:grid md:grid-cols-2 md:gap-8 md:pb-0 md:overflow-visible hide-scrollbar"
+            className="flex flex-row overflow-x-auto snap-x snap-mandatory gap-0 pb-6 md:grid md:grid-cols-2 md:gap-8 md:pb-0 md:overflow-visible hide-scrollbar"
         >
           {services.map((service, index) => (
-            <AnimatedServiceCard key={index} service={service} index={index} />
+             <div key={index} className="w-full flex-shrink-0 md:w-auto px-2 md:px-0 snap-center">
+                <AnimatedServiceCard service={service} index={index} />
+             </div>
           ))}
         </div>
 

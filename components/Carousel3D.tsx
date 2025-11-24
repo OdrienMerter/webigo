@@ -17,6 +17,11 @@ const Carousel3D: React.FC<Carousel3DProps> = ({ items, isMenuOpen }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [loadedItems, setLoadedItems] = useState<Set<number>>(new Set());
   const [isMobile, setIsMobile] = useState(false);
+  
+  // États pour le swipe tactile
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
   const numItems = items.length;
 
   useEffect(() => {
@@ -33,6 +38,32 @@ const Carousel3D: React.FC<Carousel3DProps> = ({ items, isMenuOpen }) => {
       setActiveIndex((prevIndex) => (prevIndex + 1) % numItems);
     } else {
       setActiveIndex((prevIndex) => (prevIndex - 1 + numItems) % numItems);
+    }
+  };
+
+  // Gestion du Swipe
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      handleNav('next');
+    } else if (isRightSwipe) {
+      handleNav('prev');
     }
   };
 
@@ -83,7 +114,12 @@ const Carousel3D: React.FC<Carousel3DProps> = ({ items, isMenuOpen }) => {
   };
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-visible">
+    <div 
+      className="relative w-full h-full flex flex-col items-center justify-center overflow-visible touch-pan-y"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       <div
         className="relative w-[280px] h-[180px] md:w-[480px] md:h-[320px]"
         // Sur mobile, on "recule" un peu la perspective (800px) pour que ça ne paraisse pas trop déformé
@@ -100,6 +136,8 @@ const Carousel3D: React.FC<Carousel3DProps> = ({ items, isMenuOpen }) => {
               aria-label={`Voir le projet ${item.title}`}
               className="block absolute w-full h-full left-0 top-0 border-2 border-indigo-500/30 rounded-lg overflow-hidden shadow-[0_0_25px_rgba(99,102,241,0.2)] bg-gray-900"
               style={getStyle(index)}
+              // Empêcher le drag par défaut de l'image qui interfère avec le swipe
+              onDragStart={(e) => e.preventDefault()}
             >
               <img
                 src={item.imageUrl}
@@ -120,10 +158,10 @@ const Carousel3D: React.FC<Carousel3DProps> = ({ items, isMenuOpen }) => {
         })}
       </div>
       
-      {/* Contrôles de navigation */}
+      {/* Contrôles de navigation (Desktop) - Cachés sur mobile pour favoriser le swipe, sauf si besoin */}
       <button
         onClick={() => handleNav('prev')}
-        className={`absolute left-0 md:left-[5%] top-1/2 -translate-y-1/2 text-indigo-400 p-2 md:p-3 rounded-full bg-gray-900/50 hover:bg-indigo-600 hover:text-white border border-indigo-500/30 transition-all duration-300 text-xl md:text-2xl z-50 ${isMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+        className={`hidden md:block absolute left-0 md:left-[5%] top-1/2 -translate-y-1/2 text-indigo-400 p-2 md:p-3 rounded-full bg-gray-900/50 hover:bg-indigo-600 hover:text-white border border-indigo-500/30 transition-all duration-300 text-xl md:text-2xl z-50 ${isMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
         aria-label="Previous project"
         disabled={isMenuOpen}
       >
@@ -131,15 +169,15 @@ const Carousel3D: React.FC<Carousel3DProps> = ({ items, isMenuOpen }) => {
       </button>
       <button
         onClick={() => handleNav('next')}
-        className={`absolute right-0 md:right-[5%] top-1/2 -translate-y-1/2 text-indigo-400 p-2 md:p-3 rounded-full bg-gray-900/50 hover:bg-indigo-600 hover:text-white border border-indigo-500/30 transition-all duration-300 text-xl md:text-2xl z-50 ${isMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+        className={`hidden md:block absolute right-0 md:right-[5%] top-1/2 -translate-y-1/2 text-indigo-400 p-2 md:p-3 rounded-full bg-gray-900/50 hover:bg-indigo-600 hover:text-white border border-indigo-500/30 transition-all duration-300 text-xl md:text-2xl z-50 ${isMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
         aria-label="Next project"
         disabled={isMenuOpen}
       >
         &#x276F;
       </button>
 
-      {/* Pagination Dots - Position ajustée pour être bien visible */}
-      <div className={`absolute bottom-8 md:bottom-6 flex gap-2 z-40 transition-opacity duration-300 ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`}>
+      {/* Pagination Dots - Redescendus pour l'esthétique */}
+      <div className={`absolute bottom-2 md:bottom-6 flex gap-2 z-40 transition-opacity duration-300 ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`}>
         {items.map((_, index) => (
           <button
             key={index}

@@ -1,5 +1,5 @@
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import SectionTitle from './SectionTitle';
 
 const projects = [
@@ -55,35 +55,15 @@ const projects = [
 
 
 const ProjectCard: React.FC<{ project: typeof projects[0] }> = ({ project }) => {
-    const [inView, setInView] = useState(false);
-    const ref = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) {
-                    setInView(true);
-                    observer.unobserve(entry.target);
-                }
-            },
-            { threshold: 0.1 }
-        );
-        const currentRef = ref.current;
-        if (currentRef) observer.observe(currentRef);
-        return () => { if (currentRef) observer.unobserve(currentRef); };
-    }, []);
-
-
     return (
         <div
-            ref={ref}
             className={`
-                min-w-[260px] md:min-w-0 snap-center
-                group relative overflow-hidden rounded-xl bg-gray-800 border border-gray-700 transition-all duration-500 ease-out hover:border-indigo-500/70 hover:shadow-2xl hover:shadow-indigo-500/20 transform md:hover:-translate-y-2 
-                ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}
+                w-full md:w-auto snap-center
+                group relative overflow-hidden rounded-xl bg-gray-800 border border-gray-700 transition-all duration-300 ease-out hover:border-indigo-500/70 hover:shadow-2xl hover:shadow-indigo-500/20 transform md:hover:-translate-y-2 
+                opacity-100 translate-y-0
             `}
         >
-            <div className="relative h-40 md:h-56 overflow-hidden">
+            <div className="relative h-48 md:h-56 overflow-hidden">
                 <img src={project.imageUrl} alt={project.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-60"></div>
             </div>
@@ -116,18 +96,15 @@ const Projects: React.FC<ProjectsProps> = ({ isPage = false }) => {
 
     const handleScroll = () => {
         if (scrollRef.current) {
-            const { scrollLeft, scrollWidth } = scrollRef.current;
-            // Estime l'élément courant
-            const itemWidth = scrollWidth / projects.length;
-            const newIndex = Math.round(scrollLeft / itemWidth);
-            setActiveIndex(newIndex);
+            const { scrollLeft, offsetWidth } = scrollRef.current;
+            const newIndex = Math.round(scrollLeft / offsetWidth);
+            setActiveIndex(Math.max(0, Math.min(newIndex, projects.length - 1)));
         }
     };
 
     const scrollToProject = (index: number) => {
         if (scrollRef.current) {
-            const { scrollWidth } = scrollRef.current;
-            const itemWidth = scrollWidth / projects.length;
+            const itemWidth = scrollRef.current.offsetWidth; 
             scrollRef.current.scrollTo({
                 left: index * itemWidth,
                 behavior: 'smooth'
@@ -145,14 +122,16 @@ const Projects: React.FC<ProjectsProps> = ({ isPage = false }) => {
             </p>
         )}
         
-        {/* Horizontal Scroll on Mobile */}
+        {/* Horizontal Scroll on Mobile - Full Width Logic */}
         <div 
             ref={scrollRef}
             onScroll={handleScroll}
-            className="flex flex-row overflow-x-auto snap-x snap-mandatory gap-4 pb-8 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-8 md:overflow-visible hide-scrollbar px-2 md:px-0"
+            className="flex flex-row overflow-x-auto snap-x snap-mandatory gap-0 pb-8 md:mx-0 md:px-0 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-8 md:overflow-visible hide-scrollbar"
         >
-          {projects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+          {projects.map((project, index) => (
+            <div key={index} className="w-full flex-shrink-0 md:w-auto px-2 md:px-0 snap-center">
+                 <ProjectCard project={project} />
+            </div>
           ))}
         </div>
 

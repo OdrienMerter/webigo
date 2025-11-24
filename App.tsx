@@ -12,11 +12,25 @@ const App: React.FC = () => {
     const hash = window.location.hash.replace(/^#\//, '');
     const [page, queryString] = hash.split('?');
     const query = new URLSearchParams(queryString);
-    return { page: page || 'home', query };
+    // Si le hash est vide ou juste #, on considère que c'est 'home'
+    const cleanPage = page === '' || page === undefined ? 'home' : page;
+    return { page: cleanPage, query };
   };
 
   const [location, setLocation] = useState(parseHash());
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Fonction dédiée au scrolling pour gérer les délais de rendu
+  const scrollToSection = (sectionId: string) => {
+    setTimeout(() => {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      } else if (sectionId === 'home') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }, 100); // Petit délai pour laisser le temps au composant HomePage de se monter
+  };
 
   useEffect(() => {
     if ('scrollRestoration' in window.history) {
@@ -26,42 +40,26 @@ const App: React.FC = () => {
     const handleHashChange = () => {
       const newLocation = parseHash();
       setLocation(newLocation);
-
-      if (['offres', 'devis', 'projets'].includes(newLocation.page)) {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else {
-        const element = document.getElementById(newLocation.page);
-        if(element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        } else if (newLocation.page === 'home' || newLocation.page === '') {
-          window.scrollTo({top: 0, behavior: 'smooth'});
-        }
-      }
     };
 
     window.addEventListener('hashchange', handleHashChange);
     
-    // On initial load, if the hash points to a section, scroll to it.
-    // Otherwise, ensure we're at the top.
-    const initialLocation = parseHash();
-    if (initialLocation.page && !['home', 'offres', 'devis', 'projets'].includes(initialLocation.page)) {
-      setTimeout(() => {
-        const element = document.getElementById(initialLocation.page);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        } else {
-          window.scrollTo(0, 0);
-        }
-      }, 100);
-    } else {
-      window.scrollTo(0, 0);
-    }
-
-
     return () => {
       window.removeEventListener('hashchange', handleHashChange);
     };
   }, []);
+
+  // Effect séparé pour gérer le scroll APRES que la location (et donc le rendu) ait changé
+  useEffect(() => {
+    const standalonePages = ['offres', 'devis', 'projets'];
+    
+    if (standalonePages.includes(location.page)) {
+       window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+       // C'est une section de la page d'accueil (home, services, a-propos...)
+       scrollToSection(location.page);
+    }
+  }, [location.page]);
 
   const handleOfferSelection = (offerTitle: string) => {
     window.location.hash = `/devis?offre=${encodeURIComponent(offerTitle)}`;
@@ -77,7 +75,7 @@ const App: React.FC = () => {
         return <Quote selectedOffer={location.query.get('offre')} />;
       case 'home':
       default:
-        // For 'home' and all section links like 'services', etc.
+        // Pour 'home', 'services', 'a-propos', etc., on rend la HomePage
         return <HomePage isMenuOpen={isMenuOpen} />;
     }
   };
