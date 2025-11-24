@@ -138,8 +138,8 @@ const Carousel3D: React.FC<Carousel3DProps> = ({ items, isMenuOpen }) => {
         &#x276F;
       </button>
 
-      {/* Pagination Dots */}
-      <div className={`absolute bottom-2 md:bottom-4 flex gap-2 z-40 transition-opacity duration-300 ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`}>
+      {/* Pagination Dots - Position ajustée pour être bien visible */}
+      <div className={`absolute bottom-8 md:bottom-6 flex gap-2 z-40 transition-opacity duration-300 ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`}>
         {items.map((_, index) => (
           <button
             key={index}
